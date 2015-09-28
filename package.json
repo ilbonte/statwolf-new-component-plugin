@@ -1,0 +1,33 @@
+{
+  "name": "statwolf-new-component-plugin",
+  "main": "./lib/statwolf-new-component-plugin-view",
+  "version": "0.0.0",
+  "description": "House plugin for Statwolf component generation",
+  "keywords": [],
+  "activationCommands": {
+    "atom-workspace": [
+      "statwolf-new-component-plugin:toggleFullForm",
+      "statwolf-new-component-plugin:toggleForm",
+      "statwolf-new-component-plugin:toggleService",
+      "statwolf-new-component-plugin:toggleModel",
+      "statwolf-new-component-plugin:toggleControlTemplate",
+      "statwolf-new-component-plugin:toggleView",
+      "statwolf-new-component-plugin:toggleController",
+      "statwolf-new-component-plugin:togglePythonScript",
+      "statwolf-new-component-plugin:toggleRScript",
+      "statwolf-new-component-plugin:toggleFolder"
+    ]
+  },
+  "repository": "http://git.statwolf.com/statwolf/statwolf-new-component-plugin.git",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.0.3",
+    "touch": "0.0.3",
+    "osenv": "^0.1.3",
+    "event-kit": "^1.3.0",
+    "fs-plus": "2.8.1"
+  }
+}

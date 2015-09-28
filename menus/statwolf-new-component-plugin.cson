@@ -1,0 +1,41 @@
+# Menu configuration
+# The context menu will only include the tree-view with the full menu. The
+# plugin does not require to be invoked from a directory: when invoked from a
+# file, the file path will be used in order to create the component.
+#
+# Other entry points for the plugin may be later added.
+
+'context-menu':
+  '.tree-view.full-menu': [
+    { 'type' : 'separator' }
+    {
+      'label' : 'New SW component'
+      'submenu': [
+        {
+          'label': 'Server'
+          'submenu': [
+            { 'label': 'Full form', 'command': 'statwolf-new-component-plugin:toggleFullForm' }
+            { 'label': 'Form', 'command': 'statwolf-new-component-plugin:toggleForm' }
+            { 'label': 'Service', 'command': 'statwolf-new-component-plugin:toggleService' }
+            { 'label': 'Model', 'command': 'statwolf-new-component-plugin:toggleModel' }
+          ]
+        }
+        {
+          'label': 'Client'
+          'submenu': [
+             { 'label': 'Control template', 'command': 'statwolf-new-component-plugin:toggleControlTemplate' }
+             { 'label': 'View', 'command': 'statwolf-new-component-plugin:toggleView' }
+             { 'label': 'Controller', 'command': 'statwolf-new-component-plugin:toggleController' }
+           ]
+        }
+        {
+          'label': 'Script'
+          'submenu': [
+            { 'label': 'Python script', 'command': 'statwolf-new-component-plugin:togglePythonScript' }
+            { 'label': 'R script', 'command': 'statwolf-new-component-plugin:toggleRScript' }
+          ]
+        }
+        { 'label': 'Folder', 'command': 'statwolf-new-component-plugin:toggleFolder' }
+      ]
+    }
+  ]
