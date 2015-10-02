@@ -3,20 +3,17 @@
 
 {$, $$, View, TextEditorView, ScrollView} = require "atom-space-pen-views"
 
-fs     = require 'fs-plus'
-os     = require 'os'
-osenv  = require 'osenv'
-path   = require 'path'
-touch  = require 'touch'
-
-templateHelper = require './templates/templateHelper'
+fs         = require 'fs-plus'
+os         = require 'os'
+osenv      = require 'osenv'
+path       = require 'path'
+touch      = require 'touch'
+components = require 'statwolf-components'
 
 DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
 DEFAULT_PROJECT_ROOT    = 'Project root'
 DEFAULT_EMPTY           = 'Empty'
 
-# Find filesystem root for the given path by calling path.dirname
-# until it returns the same value as its input.
 getRoot = (inputPath) ->
   lastPath = null
   while inputPath != lastPath
@@ -27,10 +24,6 @@ getRoot = (inputPath) ->
 isRoot = (inputPath) ->
   return path.dirname(inputPath) is inputPath
 
-###
-Ensure that the given path is absolute. Relative paths are treated as
-relative to the current project root.
-###
 absolutify = (inputPath) ->
   if getRoot(inputPath) == '.'
     projectPaths = atom.project.getPaths()
@@ -125,7 +118,6 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:toggleController': (event) => @toggle 'controller', event
       'statwolf-new-component-plugin:togglePythonScript': (event) => @toggle 'pythonScript', event
       'statwolf-new-component-plugin:toggleRScript': (event) => @toggle 'rScript', event
-      'statwolf-new-component-plugin:toggleFolder': (event) => @toggle 'folder', event
     })
 
     atom.commands.add @element,
@@ -139,9 +131,8 @@ class StatwolfNewComponentPluginView extends View
     @directoryListView.on "click", ".add-project-folder", (ev) => @addProjectFolder(ev)
 
     editor = @miniEditor.getModel()
-    # editor.setPlaceholderText(path.join("path","to","file.txt"))
-    editor.setPlaceholderText('./')
-    editor.setSoftWrapped(false)
+    editor.setPlaceholderText './'
+    editor.setSoftWrapped false
 
   clickItem: (ev) ->
     listItem = $(ev.currentTarget)
@@ -165,13 +156,12 @@ class StatwolfNewComponentPluginView extends View
     atom.project.addPath(folderPath)
     @detach()
 
-  # Resolves the path being inputted in the dialog, up to the last slash
   inputPath: () ->
     input = @miniEditor.getText()
-    if input.endsWith(path.sep)
+    if input.endsWith path.sep
       return input
     else
-      return path.dirname(input)
+      return path.dirname input
 
   # Returns the list of directories matching the current input (path and autocomplete fragment)
   getFileList: (callback) ->
@@ -315,16 +305,16 @@ class StatwolfNewComponentPluginView extends View
         for item in items
           containsFiles = fs.isFileSync item
 
-        [first, ..., last ] = inputPath.split path.sep
+        [..., last ] = inputPath.split path.sep
 
         if containsFiles
           throw new Error 'Invalid path specified.'
 
-        filesToCreate = templateHelper.getTemplates @componentType, last
+        filesToCreate = components.templateHelper.getTemplates @componentType, last
         componentFullName = inputPath + path.sep + last
 
         for file in filesToCreate
-            fs.writeFileSync componentFullName + file.extension, file.content
+          fs.writeFileSync componentFullName + file.extension, file.content
 
         @detach()
       catch error
@@ -352,18 +342,13 @@ class StatwolfNewComponentPluginView extends View
     @find(".list-item").removeClass("selected")
     selectedElement.addClass("selected")
 
-    # If the selected element is out of view, scroll it into view.
     parent = selectedElement.parent()
     parentHeight = parent.height()
     selectedPos = selectedElement.position()
     selectedHeight = selectedElement.height()
     if selectedPos.top < 0
-      # scrollPos.top is exactly the difference between the current
-      # scrollTop and the top of the selected element, so just add it.
       parent.scrollTop(selectedPos.top + parent.scrollTop())
     else if selectedPos.top + selectedHeight > parentHeight
-      # Find how far below the bottom the selectedElement is, and scroll
-      # down that amount plus the height to show it.
       distanceBelow = selectedPos.top - parentHeight
       parent.scrollTop(distanceBelow + selectedHeight + parent.scrollTop())
 

@@ -14,8 +14,7 @@
       "statwolf-new-component-plugin:toggleView",
       "statwolf-new-component-plugin:toggleController",
       "statwolf-new-component-plugin:togglePythonScript",
-      "statwolf-new-component-plugin:toggleRScript",
-      "statwolf-new-component-plugin:toggleFolder"
+      "statwolf-new-component-plugin:toggleRScript"
     ]
   },
   "repository": "http://git.statwolf.com/statwolf/statwolf-new-component-plugin.git",
@@ -28,6 +27,7 @@
     "touch": "0.0.3",
     "osenv": "^0.1.3",
     "event-kit": "^1.3.0",
-    "fs-plus": "2.8.1"
+    "fs-plus": "2.8.1",
+    "statwolf-components": "^1.0.0"
   }
 }
