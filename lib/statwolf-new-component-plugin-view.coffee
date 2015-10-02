@@ -1,4 +1,3 @@
-# TODO change templateHelper behaviour
 # TODO change default miniEditor path suggestion
 
 {$, $$, View, TextEditorView, ScrollView} = require "atom-space-pen-views"

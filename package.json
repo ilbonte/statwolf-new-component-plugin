@@ -17,7 +17,7 @@
       "statwolf-new-component-plugin:toggleRScript"
     ]
   },
-  "repository": "http://git.statwolf.com/statwolf/statwolf-new-component-plugin.git",
+  "repository": "https://github.com/Statwolf/statwolf-new-component-plugin.git",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
