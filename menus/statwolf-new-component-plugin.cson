@@ -1,10 +1,3 @@
-# Menu configuration
-# The context menu will only include the tree-view with the full menu. The
-# plugin does not require to be invoked from a directory: when invoked from a
-# file, the file path will be used in order to create the component.
-#
-# Other entry points for the plugin may be later added.
-
 'context-menu':
   '.tree-view.full-menu': [
     { 'type' : 'separator' }
@@ -35,7 +28,6 @@
             { 'label': 'R script', 'command': 'statwolf-new-component-plugin:toggleRScript' }
           ]
         }
-        { 'label': 'Folder', 'command': 'statwolf-new-component-plugin:toggleFolder' }
       ]
     }
   ]

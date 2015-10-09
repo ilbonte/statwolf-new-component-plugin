@@ -1,15 +1,10 @@
-# TODO change default miniEditor path suggestion
-
 {$, $$, View, TextEditorView, ScrollView} = require "atom-space-pen-views"
 
 fs         = require 'fs-plus'
-os         = require 'os'
-osenv      = require 'osenv'
 path       = require 'path'
-touch      = require 'touch'
 components = require 'statwolf-components'
 
-DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
+DEFAULT_SELECTED_DIR    = 'Selected file\'s directory'
 DEFAULT_PROJECT_ROOT    = 'Project root'
 DEFAULT_EMPTY           = 'Empty'
 
@@ -42,7 +37,6 @@ class DirectoryListView extends ScrollView
   renderFiles: (files, showParent) ->
     @empty()
 
-    # Parent directory
     if showParent
       @append $$ ->
         @li class: 'list-item parent-directory', =>
@@ -74,11 +68,6 @@ class StatwolfNewComponentPluginView extends View
                     immediately instead of on save."
       type: "boolean"
       default: true
-    helmDirSwitch:
-      title: "Shortcuts for fast directory switching"
-      description: "See README for details."
-      type: "boolean"
-      default: false
     defaultInputValue:
       title: "Default input value"
       description: "What should the path input default to when the dialog
@@ -162,7 +151,6 @@ class StatwolfNewComponentPluginView extends View
     else
       return path.dirname input
 
-  # Returns the list of directories matching the current input (path and autocomplete fragment)
   getFileList: (callback) ->
     input = @miniEditor.getText()
     inputPath = absolutify(@inputPath())
@@ -202,7 +190,6 @@ class StatwolfNewComponentPluginView extends View
 
         callback.apply @, [dirList.concat fileList]
 
-  # Called only when pressing Tab to trigger auto-completion
   autocomplete: ->
     pathToComplete = @inputPath()
     @getFileList (files) ->
@@ -231,7 +218,6 @@ class StatwolfNewComponentPluginView extends View
     @pathHistory.push oldPath or @miniEditor.getText()
     newPath = path.normalize(newPath)
 
-    # If the new path is ./, just leave it blank.
     if newPath == ".#{path.sep}"
       newPath = ''
 
@@ -240,20 +226,6 @@ class StatwolfNewComponentPluginView extends View
   update: ->
     if @detaching
       return
-
-    if atom.config.get "statwolf-new-component-plugin.helmDirSwitch"
-      text = @miniEditor.getText()
-      if text.endsWith path.sep + path.sep
-        @updatePath getRoot(text), text[...-1]
-      else if text.endsWith("#{path.sep}~#{path.sep}") or text == "~#{path.sep}"
-        try # Make sure ~ doesn't exist in the current directory.
-          fs.statSync @inputPath()
-        catch # It doesn't, do the shortcut!
-          @updatePath osenv.home() + path.sep, text[...-2]
-      else if text.endsWith("#{path.sep}:#{path.sep}") or text == ":#{path.sep}"
-        projectPaths = atom.project.getPaths()
-        if projectPaths.length > 0
-          @updatePath projectPaths[0] + path.sep, text[...-2]
 
     @getFileList (files) ->
       @renderAutocompleteList files
@@ -273,7 +245,6 @@ class StatwolfNewComponentPluginView extends View
       Enter the path for the file/directory. Separator is '#{path.sep}'.
     "
 
-  # Renders the list of directories
   renderAutocompleteList: (files) ->
     inputPath = absolutify(@inputPath())
     showParent = inputPath and inputPath.endsWith(path.sep) and not isRoot(inputPath)
@@ -377,7 +348,6 @@ class StatwolfNewComponentPluginView extends View
       "flex-direction": "column",
     })
 
-    # Detach when clicked outside.
     @outsideClickHandler = (ev) =>
       if not $(ev.target).closest(".statwolf-new-component-plugin").length
         @detach()
@@ -386,7 +356,6 @@ class StatwolfNewComponentPluginView extends View
     @miniEditor.focus()
     @miniEditor.getModel().setCursorScreenPosition [0, 10000], autoscroll: true
 
-    # Populate the directory listing live
     @miniEditor.getModel().onDidChange => @update()
 
     @miniEditor.focus()
@@ -431,7 +400,6 @@ class StatwolfNewComponentPluginView extends View
       for fileIndex in [0..fileNames.length - 1]
         fileName = fileNames[fileIndex]
         if (fileName.length < prefixIndex || fileName[prefixIndex] != nextCharacter)
-          # The first thing that doesn't share the common prefix!
           return longestCommonPrefix
       longestCommonPrefix += nextCharacter
 
