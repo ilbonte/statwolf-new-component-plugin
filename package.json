@@ -1,7 +1,7 @@
 {
   "name": "statwolf-new-component-plugin",
   "main": "./lib/statwolf-new-component-plugin-view",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "House plugin for Statwolf component generation",
   "keywords": [],
   "activationCommands": {
