@@ -76,6 +76,11 @@ class StatwolfNewComponentPluginView extends View
       type: "string"
       enum: [DEFAULT_SELECTED_DIR, DEFAULT_PROJECT_ROOT, DEFAULT_EMPTY]
       default: DEFAULT_SELECTED_DIR
+    openExtraPanel:
+      title: 'Open extra panel'
+      description: 'Automatically open extra panel when a new component has been created'
+      type: 'boolean'
+      default: false
 
   @activate: (state) ->
     @statwolfNewComponentPluginView = new StatwolfNewComponentPluginView(state.statwolfNewComponentPluginViewState)
@@ -289,7 +294,8 @@ class StatwolfNewComponentPluginView extends View
         for file in filesToCreate
           fs.writeFileSync componentFullName + file.extension, file.content
 
-        @showComponentPanel path.dirname(componentFullName)
+        if atom.config.get "statwolf-new-component-plugin.openExtraPanel"
+          @showComponentPanel path.dirname(componentFullName)
 
         @detach()
       catch error
