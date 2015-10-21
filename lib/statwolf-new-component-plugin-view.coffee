@@ -56,6 +56,7 @@ class StatwolfNewComponentPluginView extends View
 
   statwolfNewComponentPluginView: null
   componentType: null
+  componentView: null
 
   @config:
     caseSensitiveAutoCompletion:
@@ -106,6 +107,8 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:toggleController': (event) => @toggle 'controller', event
       'statwolf-new-component-plugin:togglePythonScript': (event) => @toggle 'pythonScript', event
       'statwolf-new-component-plugin:toggleRScript': (event) => @toggle 'rScript', event
+      'statwolf-new-component-plugin:expandComponent': (event) => @expandComponent event
+      'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
     })
 
     atom.commands.add @element,
@@ -221,7 +224,7 @@ class StatwolfNewComponentPluginView extends View
     if newPath == ".#{path.sep}"
       newPath = ''
 
-    @miniEditor.setText(newPath)
+    @miniEditor.setText newPath
 
   update: ->
     if @detaching
@@ -230,7 +233,7 @@ class StatwolfNewComponentPluginView extends View
     @getFileList (files) ->
       @renderAutocompleteList files
 
-    if @miniEditor.getText().endsWith(path.sep)
+    if @miniEditor.getText().endsWith path.sep
       @setMessage "file-directory-create"
     else
       @setMessage "file-add"
@@ -286,9 +289,32 @@ class StatwolfNewComponentPluginView extends View
         for file in filesToCreate
           fs.writeFileSync componentFullName + file.extension, file.content
 
+        @showComponentPanel path.dirname(componentFullName)
+
         @detach()
       catch error
+        console.log error
         @setMessage 'alert', error.message
+
+  expandComponent: (event) ->
+    selectedItem = event.target.attributes[2].textContent
+    if fs.isFileSync selectedItem
+      selectedItem = path.dirname selectedItem
+    @showComponentPanel selectedItem
+
+  showComponentExtra: (event) ->
+    if @componentView and @componentView.hasParent()
+      @componentView.close()
+    else
+      @showComponentPanel path.dirname atom.workspace.getActiveTextEditor().getPath()
+
+  showComponentPanel: (fullPath) ->
+    TabbedView = require './tabbed-view'
+    if @componentView
+      @componentView.close()
+    @componentView = new TabbedView(componentPath: fullPath)
+    @componentView.componentPath = fullPath
+    @componentView.toggle()
 
   undo: ->
     if @pathHistory.length > 0
@@ -327,7 +353,7 @@ class StatwolfNewComponentPluginView extends View
     @outsideClickHandler = null
     return unless @hasParent()
     @detaching = true
-    @miniEditor.setText ""
+    @miniEditor.setText ''
     @setMessage()
     @directoryListView.empty()
     miniEditorFocused = @miniEditor.hasFocus()

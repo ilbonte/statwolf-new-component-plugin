@@ -4,19 +4,6 @@
   "version": "0.1.2",
   "description": "House plugin for Statwolf component generation",
   "keywords": [],
-  "activationCommands": {
-    "atom-workspace": [
-      "statwolf-new-component-plugin:toggleFullForm",
-      "statwolf-new-component-plugin:toggleForm",
-      "statwolf-new-component-plugin:toggleService",
-      "statwolf-new-component-plugin:toggleModel",
-      "statwolf-new-component-plugin:toggleControlTemplate",
-      "statwolf-new-component-plugin:toggleView",
-      "statwolf-new-component-plugin:toggleController",
-      "statwolf-new-component-plugin:togglePythonScript",
-      "statwolf-new-component-plugin:toggleRScript"
-    ]
-  },
   "repository": "https://github.com/Statwolf/statwolf-new-component-plugin.git",
   "license": "MIT",
   "engines": {

@@ -1,5 +1,6 @@
 'context-menu':
   '.tree-view.full-menu': [
+    { 'label': 'Explode component view', 'command': 'statwolf-new-component-plugin:expandComponent'}
     { 'type' : 'separator' }
     {
       'label' : 'New SW component'

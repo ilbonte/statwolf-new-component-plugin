@@ -1,0 +1,2 @@
+'atom-workspace':
+  'ctrl-o': 'statwolf-new-component-plugin:showComponentExtra'
