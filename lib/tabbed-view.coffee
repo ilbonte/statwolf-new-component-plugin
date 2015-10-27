@@ -19,7 +19,7 @@ class TabbedView extends View
       @h2 outlet: 'componentNameHeader'
 
       fullName = params.componentPath + path.sep + path.basename params.componentPath
-      isDependency = fs.existsSync(fullName + '.deps.js')
+      isDependency = fs.existsSync(fullName + '.deps.json')
       isResolver = fs.existsSync(fullName + '.resolver.js')
 
       if isDependency or isResolver
@@ -46,7 +46,7 @@ class TabbedView extends View
     for file in files
       continue if file.indexOf('.meta.json') != -1 or
                   file.indexOf('.resolver.js') != -1 or
-                  file.indexOf('.deps.js') != -1
+                  file.indexOf('.deps.json') != -1
       if path.extname(file) is '.js' or path.extname(file) is '.json'
         atom.workspace.open file
         .then (editor) =>
@@ -86,12 +86,12 @@ class TabbedView extends View
 
   setExtraFilePath: () ->
     if @hasDependencies()
-      @extraFilePath = @componentPath + path.sep + @componentName + '.deps.js'
+      @extraFilePath = @componentPath + path.sep + @componentName + '.deps.json'
     else if @hasResolver()
       @extraFilePath = @componentPath + path.sep + @componentName + '.resolver.js'
 
   hasDependencies: () ->
-    return fs.existsSync @componentPath + path.sep + @componentName + '.deps.js'
+    return fs.existsSync @componentPath + path.sep + @componentName + '.deps.json'
 
   hasResolver: () ->
     return fs.existsSync @componentPath + path.sep + @componentName + '.resolver.js'
@@ -109,11 +109,11 @@ class TabbedView extends View
 
   toggleSaveButton: (enable) ->
     if enable
-      @saveButton[0].classList.add 'btn-success'
-      @saveButton[0].classList.remove 'disabled'
+      @saveButton.addClass 'btn-success'
+      @saveButton.removeClass 'disabled'
     else
-      @saveButton[0].classList.remove 'btn-success'
-      @saveButton[0].classList.add 'disabled'
+      @saveButton.removeClass 'btn-success'
+      @saveButton.addClass 'disabled'
 
   enableForSaving: () ->
     unless @saveButton
@@ -122,7 +122,7 @@ class TabbedView extends View
 
   populateExtra: (deps) ->
     if @hasDependencies()
-      extra = fs.readFileSync @componentPath + path.sep + @componentName + '.deps.js'
+      extra = fs.readFileSync @componentPath + path.sep + @componentName + '.deps.json'
     else if @hasResolver()
       extra = fs.readFileSync @componentPath + path.sep + @componentName + '.resolver.js'
 
