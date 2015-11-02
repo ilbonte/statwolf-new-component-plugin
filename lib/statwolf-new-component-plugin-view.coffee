@@ -409,7 +409,8 @@ class StatwolfNewComponentPluginView extends View
     @miniEditor.setText suggestedPath
 
   toggle: (type, event) =>
-    launchPath = event.target.attributes[2].textContent
+    target = $(event.target)
+    launchPath = target.data('path') or target.find('span').data('path')
     @componentType = type
     if @hasParent()
       @detach()
