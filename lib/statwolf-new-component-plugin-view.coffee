@@ -4,15 +4,15 @@ fs         = require 'fs-plus'
 path       = require 'path'
 components = require 'statwolf-components'
 
-DEFAULT_SELECTED_DIR    = 'Selected file\'s directory'
-DEFAULT_PROJECT_ROOT    = 'Project root'
-DEFAULT_EMPTY           = 'Empty'
+DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
+DEFAULT_PROJECT_ROOT = 'Project root'
+DEFAULT_EMPTY        = 'Empty'
 
 getRoot = (inputPath) ->
   lastPath = null
-  while inputPath != lastPath
+  while inputPath is not lastPath
     lastPath = inputPath
-    inputPath = path.dirname(inputPath)
+    inputPath = path.dirname inputPath
   return inputPath
 
 isRoot = (inputPath) ->
@@ -27,8 +27,8 @@ absolutify = (inputPath) ->
   absolutePath = path.resolve inputPath
   if inputPath.endsWith path.sep
     return absolutePath + path.sep
-  else
-    return absolutePath
+
+  return absolutePath
 
 class DirectoryListView extends ScrollView
   @content: ->
@@ -83,11 +83,10 @@ class StatwolfNewComponentPluginView extends View
       default: false
 
   @activate: (state) ->
-    @statwolfNewComponentPluginView = new StatwolfNewComponentPluginView(state.statwolfNewComponentPluginViewState)
+    @statwolfNewComponentPluginView = new StatwolfNewComponentPluginView state.statwolfNewComponentPluginViewState
 
   @deactivate: ->
     @componentType = null
-    @disposables.dispose()
     @statwolfNewComponentPluginView?.detach()
 
   @content: (params) ->
@@ -103,17 +102,17 @@ class StatwolfNewComponentPluginView extends View
 
   initialize: (serializeState) ->
     atom.commands.add('atom-workspace', {
-      'statwolf-new-component-plugin:toggleFullForm': (event) => @toggle 'fullForm', event
-      'statwolf-new-component-plugin:toggleForm': (event) => @toggle 'form', event
-      'statwolf-new-component-plugin:toggleService': (event) => @toggle 'service', event
-      'statwolf-new-component-plugin:toggleModel': (event) => @toggle 'model', event
+      'statwolf-new-component-plugin:toggleFullForm':        (event) => @toggle 'fullForm', event
+      'statwolf-new-component-plugin:toggleForm':            (event) => @toggle 'form', event
+      'statwolf-new-component-plugin:toggleService':         (event) => @toggle 'service', event
+      'statwolf-new-component-plugin:toggleModel':           (event) => @toggle 'model', event
       'statwolf-new-component-plugin:toggleControlTemplate': (event) => @toggle 'controlTemplate', event
-      'statwolf-new-component-plugin:toggleView': (event) => @toggle 'view', event
-      'statwolf-new-component-plugin:toggleController': (event) => @toggle 'controller', event
-      'statwolf-new-component-plugin:togglePythonScript': (event) => @toggle 'pythonScript', event
-      'statwolf-new-component-plugin:toggleRScript': (event) => @toggle 'rScript', event
-      'statwolf-new-component-plugin:expandComponent': (event) => @expandComponent event
-      'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
+      'statwolf-new-component-plugin:toggleView':            (event) => @toggle 'view', event
+      'statwolf-new-component-plugin:toggleController':      (event) => @toggle 'controller', event
+      'statwolf-new-component-plugin:togglePythonScript':    (event) => @toggle 'pythonScript', event
+      'statwolf-new-component-plugin:toggleRScript':         (event) => @toggle 'rScript', event
+      'statwolf-new-component-plugin:expandComponent':       (event) => @expandComponent event
+      'statwolf-new-component-plugin:showComponentExtra':    (event) => @showComponentExtra event
     })
 
     atom.commands.add @element,
@@ -261,14 +260,14 @@ class StatwolfNewComponentPluginView extends View
   confirm: ->
     selected = @find(".list-item.selected")
     if selected.length > 0
-      @selectItem(selected)
+      @selectItem selected
     else
-      @openOrCreate(@miniEditor.getText())
+      @openOrCreate @miniEditor.getText()
 
   openOrCreate: (inputPath) ->
-    inputPath = absolutify(inputPath)
+    inputPath = absolutify inputPath
 
-    if fs.existsSync(inputPath)
+    if fs.existsSync inputPath
       if fs.statSync(inputPath).isFile()
         atom.workspace.open inputPath
         @detach()
@@ -294,13 +293,15 @@ class StatwolfNewComponentPluginView extends View
         for file in filesToCreate
           fs.writeFileSync componentFullName + file.extension, file.content
 
+        fs.writeFileSync componentFullName + '.test.js', 'expect(\'life\').toBe(\'fair\');'
+
         if atom.config.get "statwolf-new-component-plugin.openExtraPanel"
           @showComponentPanel path.dirname(componentFullName)
 
         @detach()
       catch error
-        console.log error
         @setMessage 'alert', error.message
+        return error.message
 
   expandComponent: (event) ->
     selectedItem = event.target.attributes[2].textContent
@@ -332,13 +333,13 @@ class StatwolfNewComponentPluginView extends View
     selected = @find(".list-item.selected").next()
     if selected.length < 1
       selected = @find(".list-item:first")
-    @moveCursorTo(selected)
+    @moveCursorTo selected
 
   moveCursorUp: ->
     selected = @find(".list-item.selected").prev()
     if selected.length < 1
       selected = @find(".list-item:last")
-    @moveCursorTo(selected)
+    @moveCursorTo selected
 
   moveCursorTo: (selectedElement) ->
     @find(".list-item").removeClass("selected")
@@ -372,7 +373,7 @@ class StatwolfNewComponentPluginView extends View
     @suggestPath suggested
     @previouslyFocusedElement = $(":focus")
     @pathHistory = []
-    @panel = atom.workspace.addModalPanel(item: this)
+    @panel = atom.workspace.addModalPanel item: this
 
     @parent(".modal").css({
       "max-height": "100%",
