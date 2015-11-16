@@ -113,6 +113,7 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:toggleRScript':         (event) => @toggle 'rScript', event
       'statwolf-new-component-plugin:expandComponent':       (event) => @expandComponent event
       'statwolf-new-component-plugin:showComponentExtra':    (event) => @showComponentExtra event
+      'statwolf-new-component-plugin:copyStatwolfPath':      (event) => @copyStatwolfPath event
     })
 
     atom.commands.add @element,
@@ -408,6 +409,29 @@ class StatwolfNewComponentPluginView extends View
           suggestedPath = projectPaths[0] + path.sep
 
     @miniEditor.setText suggestedPath
+
+  copyStatwolfPath: (event) ->
+    target = $(event.target)
+    launchPath = target.data('path') or target.find('span').data('path')
+
+    rootPaths    = atom.project.getPaths()
+    selectedPath = null
+    projectName  = null
+
+    rootPaths.forEach (rootPath) ->
+      [..., folderName] = rootPath.split path.sep
+      if folderName is atom.config.get 'statwolf-atom-configuration.rootPath'
+        selectedPath = rootPath
+        projectName = folderName
+
+    unless launchPath.split(selectedPath)[1]
+      atom.notifications.addWarning 'Component path not copied', {detail: 'You selected an invalid Statwolf component.'}
+
+    relativePath = path.sep + projectName + launchPath.split(selectedPath)[1]
+    relativePath = relativePath.replace(new RegExp('\\' + path.sep, 'g'), '.').slice 1
+
+    atom.clipboard.write relativePath
+
 
   toggle: (type, event) =>
     target = $(event.target)

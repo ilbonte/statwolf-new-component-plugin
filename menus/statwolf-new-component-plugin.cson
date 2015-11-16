@@ -3,6 +3,10 @@
     { 'label': 'Explode component view', 'command': 'statwolf-new-component-plugin:expandComponent'}
     { 'type' : 'separator' }
     {
+      'label' : 'Copy Statwolf path'
+      'command' : 'statwolf-new-component-plugin:copyStatwolfPath'
+    }
+    {
       'label' : 'New SW component'
       'submenu': [
         {
