@@ -371,7 +371,7 @@ class StatwolfNewComponentPluginView extends View
 
   copyStatwolfPath: (event) ->
     target = $(event.target)
-    launchPath = target.data('path') or target.find('span').data('path')
+    launchPath = target.data('path') or target.find('span').data('path') or target.find('div').data('path')
 
     rootPaths    = atom.project.getPaths()
     selectedPath = null
@@ -387,6 +387,9 @@ class StatwolfNewComponentPluginView extends View
       atom.notifications.addWarning 'Component path not copied', {detail: 'You selected an invalid Statwolf component.'}
 
     relativePath = path.sep + projectName + launchPath.split(selectedPath)[1]
+
+    if fs.isFileSync launchPath then relativePath = path.dirname relativePath
+
     relativePath = relativePath.replace(new RegExp('\\' + path.sep, 'g'), '.').slice 1
 
     atom.clipboard.write relativePath
