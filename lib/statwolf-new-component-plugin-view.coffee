@@ -4,52 +4,11 @@ fs         = require 'fs-plus'
 path       = require 'path'
 components = require 'statwolf-components'
 
+DirectoryListView    = require './directory-list-view'
+
 DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
 DEFAULT_PROJECT_ROOT = 'Project root'
 DEFAULT_EMPTY        = 'Empty'
-
-getRoot = (inputPath) ->
-  lastPath = null
-  while inputPath is not lastPath
-    lastPath = inputPath
-    inputPath = path.dirname inputPath
-  return inputPath
-
-isRoot = (inputPath) ->
-  return path.dirname(inputPath) is inputPath
-
-absolutify = (inputPath) ->
-  if getRoot(inputPath) == '.'
-    projectPaths = atom.project.getPaths()
-    if projectPaths.length > 0
-      return path.join projectPaths[0], inputPath
-
-  absolutePath = path.resolve inputPath
-  if inputPath.endsWith path.sep
-    return absolutePath + path.sep
-
-  return absolutePath
-
-class DirectoryListView extends ScrollView
-  @content: ->
-    @ul class: 'list-group', outlet: 'directoryList'
-
-  renderFiles: (files, showParent) ->
-    @empty()
-
-    if showParent
-      @append $$ ->
-        @li class: 'list-item parent-directory', =>
-          @span class: 'icon icon-file-directory', '..'
-
-    files?.forEach (file) =>
-      icon = if file.isDir then 'icon-file-directory' else 'icon-file-text'
-      @append $$ ->
-        @li class: "list-item #{'directory' if file.isDir}", =>
-          @span class: "filename icon #{icon}", "data-name": path.basename(file.name), file.name
-          if file.isDir and not file.isProjectDir then @span
-            class: "add-project-folder icon icon-plus",
-            title: "Open as project folder"
 
 module.exports =
 class StatwolfNewComponentPluginView extends View
@@ -161,7 +120,7 @@ class StatwolfNewComponentPluginView extends View
 
   getFileList: (callback) ->
     input = @miniEditor.getText()
-    inputPath = absolutify(@inputPath())
+    inputPath = @absolutify @inputPath()
 
     fs.stat inputPath, (err, stat) =>
       if err?.code is "ENOENT"
@@ -254,8 +213,8 @@ class StatwolfNewComponentPluginView extends View
     "
 
   renderAutocompleteList: (files) ->
-    inputPath = absolutify(@inputPath())
-    showParent = inputPath and inputPath.endsWith(path.sep) and not isRoot(inputPath)
+    inputPath = @absolutify @inputPath()
+    showParent = inputPath and inputPath.endsWith(path.sep) and not @isRoot(inputPath)
     @directoryListView.renderFiles files, showParent
 
   confirm: ->
@@ -266,7 +225,7 @@ class StatwolfNewComponentPluginView extends View
       @openOrCreate @miniEditor.getText()
 
   openOrCreate: (inputPath) ->
-    inputPath = absolutify inputPath
+    inputPath = @absolutify inputPath
 
     if fs.existsSync inputPath
       if fs.statSync(inputPath).isFile()
@@ -432,6 +391,27 @@ class StatwolfNewComponentPluginView extends View
 
     atom.clipboard.write relativePath
 
+  getRoot: (inputPath) ->
+    lastPath = null
+    while inputPath is not lastPath
+      lastPath = inputPath
+      inputPath = path.dirname inputPath
+    return inputPath
+
+  isRoot: (inputPath) ->
+    return path.dirname(inputPath) is inputPath
+
+  absolutify: (inputPath) ->
+    if @getRoot(inputPath) == '.'
+      projectPaths = atom.project.getPaths()
+      if projectPaths.length > 0
+        return path.join projectPaths[0], inputPath
+
+    absolutePath = path.resolve inputPath
+    if inputPath.endsWith path.sep
+      return absolutePath + path.sep
+
+    return absolutePath
 
   toggle: (type, event) =>
     target = $(event.target)
