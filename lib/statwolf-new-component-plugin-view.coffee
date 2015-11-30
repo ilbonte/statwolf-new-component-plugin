@@ -1,4 +1,4 @@
-{$, $$, View, TextEditorView, ScrollView} = require "atom-space-pen-views"
+{$, $$, View, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 
 fs         = require 'fs-plus'
 path       = require 'path'
@@ -17,22 +17,24 @@ class StatwolfNewComponentPluginView extends View
   componentType: null
   componentView: null
 
+  @detaching: false
+
   @config:
     caseSensitiveAutoCompletion:
-      title: "Case-sensitive auto-completion"
-      type: "boolean"
+      title: 'Case-sensitive auto-completion'
+      type: 'boolean'
       default: false
     createFileInstantly:
-      title: "Create files instantly"
+      title: 'Create files instantly'
       description: "When opening files that don't exist, create them
                     immediately instead of on save."
-      type: "boolean"
+      type: 'boolean'
       default: true
     defaultInputValue:
-      title: "Default input value"
-      description: "What should the path input default to when the dialog
-                    is opened?"
-      type: "string"
+      title: 'Default input value'
+      description: 'What should the path input default to when the dialog
+                    is opened?'
+      type: 'string'
       enum: [DEFAULT_SELECTED_DIR, DEFAULT_PROJECT_ROOT, DEFAULT_EMPTY]
       default: DEFAULT_SELECTED_DIR
     openExtraPanel:
@@ -41,23 +43,21 @@ class StatwolfNewComponentPluginView extends View
       type: 'boolean'
       default: false
 
+  @content: (params) ->
+    @div class: 'statwolf-new-component-plugin', =>
+      @p
+        outlet: 'message',
+        class: 'icon icon-file-add',
+        "Enter the path for the file/directory. Directories end with a "#{path.sep}"."
+      @subview 'miniEditor', new TextEditorView({mini:true})
+      @subview 'directoryListView', new DirectoryListView()
+
   @activate: (state) ->
     @statwolfNewComponentPluginView = new StatwolfNewComponentPluginView state.statwolfNewComponentPluginViewState
 
   @deactivate: ->
     @componentType = null
     @statwolfNewComponentPluginView?.detach()
-
-  @content: (params) ->
-    @div class: "statwolf-new-component-plugin", =>
-      @p
-        outlet: "message",
-        class: "icon icon-file-add",
-        "Enter the path for the file/directory. Directories end with a "#{path.sep}"."
-      @subview "miniEditor", new TextEditorView({mini:true})
-      @subview "directoryListView", new DirectoryListView()
-
-  @detaching: false,
 
   initialize: (serializeState) ->
     atom.commands.add('atom-workspace', {
@@ -76,14 +76,15 @@ class StatwolfNewComponentPluginView extends View
     })
 
     atom.commands.add @element,
-      "core:confirm": => @confirm()
-      "core:cancel": => @detach()
-      "statwolf-new-component-plugin:autocomplete": => @autocomplete()
-      "statwolf-new-component-plugin:undo": => @undo()
-      "statwolf-new-component-plugin:move-cursor-down": => @moveCursorDown()
-      "statwolf-new-component-plugin:move-cursor-up": => @moveCursorUp()
-    @directoryListView.on "click", ".list-item", (ev) => @clickItem(ev)
-    @directoryListView.on "click", ".add-project-folder", (ev) => @addProjectFolder(ev)
+      'core:confirm': => @confirm()
+      'core:cancel': => @detach()
+      'statwolf-new-component-plugin:autocomplete': => @autocomplete()
+      'statwolf-new-component-plugin:undo': => @undo()
+      'statwolf-new-component-plugin:move-cursor-down': => @moveCursorDown()
+      'statwolf-new-component-plugin:move-cursor-up': => @moveCursorUp()
+
+    @directoryListView.on 'click', ".list-item", (ev) => @clickItem(ev)
+    @directoryListView.on 'click', ".add-project-folder", (ev) => @addProjectFolder(ev)
 
     editor = @miniEditor.getModel()
     editor.setPlaceholderText './'
@@ -218,7 +219,7 @@ class StatwolfNewComponentPluginView extends View
     @directoryListView.renderFiles files, showParent
 
   confirm: ->
-    selected = @find(".list-item.selected")
+    selected = @find '.list-item.selected'
     if selected.length > 0
       @selectItem selected
     else
@@ -233,35 +234,57 @@ class StatwolfNewComponentPluginView extends View
         @detach()
       else
         atom.beep()
-    else
-      createWithin = path.dirname inputPath
-      containsFiles = false
-      try
-        items = fs.listSync createWithin
 
-        for item in items
-          containsFiles = fs.isFileSync item
+      return
 
-        [..., last ] = inputPath.split path.sep
+    createWithin = path.dirname inputPath
+    containsFiles = false
 
-        if containsFiles
-          throw new Error 'Invalid path specified.'
+    try
+      items = fs.listSync createWithin
 
-        filesToCreate = components.templateHelper.getTemplates @componentType, last
-        componentFullName = inputPath + path.sep + last
+      for item in items
+        containsFiles = fs.isFileSync item
 
-        for file in filesToCreate
-          fs.writeFileSync componentFullName + file.extension, file.content
+      [..., last] = inputPath.split path.sep
 
-        fs.writeFileSync componentFullName + '.test.js', 'expect(\'life\').toBe(\'fair\');'
+      if containsFiles
+        throw new Error 'Invalid path specified.'
 
-        if atom.config.get "statwolf-new-component-plugin.openExtraPanel"
-          @showComponentPanel path.dirname(componentFullName)
+      filesToCreate = components.templateHelper.getTemplates @componentType, last
 
-        @detach()
-      catch error
-        @setMessage 'alert', error.message
-        return error.message
+      componentFullName = inputPath + path.sep + last
+
+      for file in filesToCreate
+        fs.writeFileSync componentFullName + file.extension, file.content
+
+      if @componentType is 'fullForm'
+        serviceName = inputPath + 'Service' + path.sep + last
+        for file in components.templateHelper.getTemplates 'service', last
+          fs.writeFileSync serviceName + file.extension, file.content
+
+        modelName = inputPath + 'Model' + path.sep + last
+        for file in components.templateHelper.getTemplates 'model', last
+          fs.writeFileSync modelName + file.extension, file.content
+
+        viewName = inputPath + 'View' + path.sep + last
+        for file in components.templateHelper.getTemplates 'view', last
+          fs.writeFileSync viewName + file.extension, file.content
+
+        ctrlName = inputPath + 'Controller' + path.sep + last
+        for file in components.templateHelper.getTemplates 'controller', last
+          fs.writeFileSync ctrlName + file.extension, file.content
+
+      fs.writeFileSync componentFullName + '.test.js', 'expect(\'life\').toBe(\'fair\');'
+
+      if atom.config.get 'statwolf-new-component-plugin.openExtraPanel'
+        @showComponentPanel path.dirname(componentFullName)
+
+      @detach()
+
+    catch error
+      @setMessage 'alert', error.message
+      return error.message
 
   expandComponent: (event) ->
     selectedItem = event.target.attributes[2].textContent
@@ -319,6 +342,7 @@ class StatwolfNewComponentPluginView extends View
     $("html").off("click", @outsideClickHandler) unless not @outsideClickHandler
     @outsideClickHandler = null
     return unless @hasParent()
+
     @detaching = true
     @miniEditor.setText ''
     @setMessage()
@@ -342,7 +366,7 @@ class StatwolfNewComponentPluginView extends View
     })
 
     @outsideClickHandler = (ev) =>
-      if not $(ev.target).closest(".statwolf-new-component-plugin").length
+      if not $(ev.target).closest('.statwolf-new-component-plugin').length
         @detach()
     $("html").on "click", @outsideClickHandler
 
@@ -356,7 +380,7 @@ class StatwolfNewComponentPluginView extends View
 
   suggestPath: (suggested) ->
     suggestedPath = ''
-    switch atom.config.get("statwolf-new-component-plugin.defaultInputValue")
+    switch atom.config.get 'statwolf-new-component-plugin.defaultInputValue'
       when DEFAULT_SELECTED_DIR
         suggestedPath = suggested
         if fs.isFileSync suggestedPath
