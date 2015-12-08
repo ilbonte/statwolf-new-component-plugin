@@ -1,4 +1,5 @@
 {$, $$, View, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{allowUnsafeEval, allowUnsafeNewFunction} = require 'loophole'
 
 fs         = require 'fs-plus'
 path       = require 'path'
@@ -251,31 +252,37 @@ class StatwolfNewComponentPluginView extends View
       if containsFiles
         throw new Error 'Invalid path specified.'
 
-      filesToCreate = components.templateHelper.getTemplates @componentType, last
-
       componentFullName = inputPath + path.sep + last
 
-      for file in filesToCreate
-        fs.writeFileSync componentFullName + file.extension, file.content
+      context =
+        name: last
+        path: path.dirname path.dirname componentFullName
 
       if @componentType is 'fullForm'
-        serviceName = inputPath + 'Service' + path.sep + last
-        for file in components.templateHelper.getTemplates 'service', last
-          fs.writeFileSync serviceName + file.extension, file.content
+        @componentType = 'form'
+        context.bind = true
+        context.componentDeps = [
+           componentType: 'service'
+           suffix: 'Service'
+          ,
+           componentType: 'model'
+           suffix: 'Model'
+          ,
+           componentType: 'view',
+           suffix: 'View'
+          ,
+           componentType: 'controller'
+           suffix: 'Controller'
+        ]
 
-        modelName = inputPath + 'Model' + path.sep + last
-        for file in components.templateHelper.getTemplates 'model', last
-          fs.writeFileSync modelName + file.extension, file.content
+      getTemplates = allowUnsafeEval -> allowUnsafeNewFunction ->
+        components.templateHelper.getFileListForType
 
-        viewName = inputPath + 'View' + path.sep + last
-        for file in components.templateHelper.getTemplates 'view', last
-          fs.writeFileSync viewName + file.extension, file.content
+      filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
+        getTemplates @componentType, context
 
-        ctrlName = inputPath + 'Controller' + path.sep + last
-        for file in components.templateHelper.getTemplates 'controller', last
-          fs.writeFileSync ctrlName + file.extension, file.content
-
-      fs.writeFileSync componentFullName + '.test.js', 'expect(\'life\').toBe(\'fair\');'
+      for file in filesToCreate
+        fs.writeFileSync file.path, file.content
 
       if atom.config.get 'statwolf-new-component-plugin.openExtraPanel'
         @showComponentPanel path.dirname(componentFullName)

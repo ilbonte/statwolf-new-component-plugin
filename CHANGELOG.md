@@ -1,3 +1,6 @@
+## 0.1.11 - New template engine adopted
+* `statwolf-components` package new interface adoption
+
 ## 0.1.7 - Copy Statwolf paths
 * New contextual menu on tree-view for copying the Statwolf project-relative path of a component
 
