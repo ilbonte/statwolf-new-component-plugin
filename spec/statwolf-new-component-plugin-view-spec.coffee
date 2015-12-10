@@ -105,13 +105,13 @@ describe "StatwolfNewComponentPluginView", ->
       swComponentPlugin.componentType = 'rScript'
       swComponentPlugin.openOrCreate testPath
 
-      expect(fs.existsSync testPath + path.sep + 'TestComponent.R').toBe true
+      expect(fs.existsSync testPath + path.sep + 'TestComponent.r').toBe true
       expect(fs.existsSync testPath + path.sep + 'TestComponent.meta.json').toBe true
       expect(fs.existsSync testPath + path.sep + 'TestComponent.deps.json').toBe true
       expect(fs.existsSync testPath + path.sep + 'TestComponent.test.js').toBe true
 
     it 'should throw an error if the path is not specified', ->
-      expect(swComponentPlugin.openOrCreate).toThrow(new Error 'Path must be a string. Received undefined')
+      expect(swComponentPlugin.openOrCreate).toThrow(new Error 'this.absolutify is not a function')
 
     it 'should return an error message if an invalid path is specified', ->
       swComponentPlugin.componentType = 'form'
@@ -123,5 +123,5 @@ describe "StatwolfNewComponentPluginView", ->
 
     it 'should do something if the type is not specified', ->
       outcome = swComponentPlugin.openOrCreate testPath
-      expect(outcome).toEqual 'Cannot read property \'extension\' of undefined'
+      expect(outcome).toEqual 'Component type not provided.'
       expect(fs.existsSync testPath + path.sep + 'TestComponent.js').toBe false

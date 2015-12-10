@@ -253,20 +253,27 @@ class StatwolfNewComponentPluginView extends View
         throw new Error 'Invalid path specified.'
 
       componentFullName = inputPath + path.sep + last
+      console.log 'component full name: ' + componentFullName
+      console.log 'configured root: ' + atom.config.get 'statwolf-atom-configuration.rootPath'
 
       context =
         name: last
         path: path.dirname path.dirname componentFullName
 
       if @componentType is 'fullForm'
+
+        basePath = componentFullName.split(atom.config.get 'statwolf-atom-configuration.rootPath')[1].slice 1
+
         @componentType = 'form'
         context.bind = true
+        context.basePath = path.dirname basePath
         context.componentDeps = [
            componentType: 'service'
            suffix: 'Service'
           ,
            componentType: 'model'
            suffix: 'Model'
+           servicePointer: basePath
           ,
            componentType: 'view',
            suffix: 'View'
