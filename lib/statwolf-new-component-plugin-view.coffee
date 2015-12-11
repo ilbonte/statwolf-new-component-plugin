@@ -253,8 +253,6 @@ class StatwolfNewComponentPluginView extends View
         throw new Error 'Invalid path specified.'
 
       componentFullName = inputPath + path.sep + last
-      console.log 'component full name: ' + componentFullName
-      console.log 'configured root: ' + atom.config.get 'statwolf-atom-configuration.rootPath'
 
       context =
         name: last
