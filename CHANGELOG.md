@@ -1,3 +1,8 @@
+## 0.1.12
+* Interface fix for Statwolf project root path
+* Travis CI support added
+* Tests added
+
 ## 0.1.11 - New template engine adopted
 * `statwolf-components` package new interface adoption
 
