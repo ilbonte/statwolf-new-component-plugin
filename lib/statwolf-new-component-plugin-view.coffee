@@ -63,15 +63,7 @@ class StatwolfNewComponentPluginView extends View
 
   initialize: (serializeState) ->
     atom.commands.add('atom-workspace', {
-      'statwolf-new-component-plugin:toggleFullForm':        (event) => @toggle 'fullForm', event
-      'statwolf-new-component-plugin:toggleForm':            (event) => @toggle 'form', event
-      'statwolf-new-component-plugin:toggleService':         (event) => @toggle 'service', event
-      'statwolf-new-component-plugin:toggleModel':           (event) => @toggle 'model', event
-      'statwolf-new-component-plugin:toggleControlTemplate': (event) => @toggle 'controlTemplate', event
-      'statwolf-new-component-plugin:toggleView':            (event) => @toggle 'view', event
-      'statwolf-new-component-plugin:toggleController':      (event) => @toggle 'controller', event
-      'statwolf-new-component-plugin:togglePythonScript':    (event) => @toggle 'pythonScript', event
-      'statwolf-new-component-plugin:toggleRScript':         (event) => @toggle 'rScript', event
+      'statwolf-new-component-plugin:toggle':        (event) => @toggle event
       'statwolf-new-component-plugin:expandComponent':       (event) => @expandComponent event
       'statwolf-new-component-plugin:showComponentExtra':    (event) => @showComponentExtra event
       'statwolf-new-component-plugin:copyStatwolfPath':      (event) => @copyStatwolfPath event
@@ -369,7 +361,9 @@ class StatwolfNewComponentPluginView extends View
   attach: (suggested) ->
     @suggestedPathFromSelection = suggested
     componentTypeView = new ComponentTypeView
-    componentTypeView.toggle @
+    typeList = components.templateHelper.getTemplateList()
+    typeList.push 'fullForm'
+    componentTypeView.toggle @, typeList
 
   getComponentName: (compType) ->
     @componentType = compType
@@ -459,10 +453,10 @@ class StatwolfNewComponentPluginView extends View
 
     return absolutePath
 
-  toggle: (type, event) =>
+  toggle: (event) =>
     target = $(event.target)
     launchPath = target.data('path') or target.find('span').data('path')
-    @componentType = type
+    # @componentType = type
     if @hasParent()
       @detach()
     else

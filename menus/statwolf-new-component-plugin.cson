@@ -7,33 +7,8 @@
       'command' : 'statwolf-new-component-plugin:copyStatwolfPath'
     }
     {
-      'label' : 'New SW component'
-      'submenu': [
-        {
-          'label': 'Server'
-          'submenu': [
-            { 'label': 'Full form', 'command': 'statwolf-new-component-plugin:toggleFullForm' }
-            { 'label': 'Form', 'command': 'statwolf-new-component-plugin:toggleForm' }
-            { 'label': 'Service', 'command': 'statwolf-new-component-plugin:toggleService' }
-            { 'label': 'Model', 'command': 'statwolf-new-component-plugin:toggleModel' }
-          ]
-        }
-        {
-          'label': 'Client'
-          'submenu': [
-             { 'label': 'Control template', 'command': 'statwolf-new-component-plugin:toggleControlTemplate' }
-             { 'label': 'View', 'command': 'statwolf-new-component-plugin:toggleView' }
-             { 'label': 'Controller', 'command': 'statwolf-new-component-plugin:toggleController' }
-           ]
-        }
-        {
-          'label': 'Script'
-          'submenu': [
-            { 'label': 'Python script', 'command': 'statwolf-new-component-plugin:togglePythonScript' }
-            { 'label': 'R script', 'command': 'statwolf-new-component-plugin:toggleRScript' }
-          ]
-        }
-      ]
+      'label' : 'New Statwolf component'
+      'command': 'statwolf-new-component-plugin:toggle'
     }
   ]
   '.tab': [

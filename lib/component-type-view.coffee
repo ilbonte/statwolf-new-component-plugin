@@ -21,11 +21,12 @@ class ComponentTypeView extends SelectListView
 
   cancelled: -> @hide()
 
-  toggle: (owner) ->
+  toggle: (owner, componentList) ->
     if @panel?.isVisible()
       @cancel()
     else
       @owner = owner
+      @componentList = componentList
       @show()
 
   show: ->
@@ -39,36 +40,13 @@ class ComponentTypeView extends SelectListView
     else
       @eventElement = atom.views.getView(atom.workspace)
 
-    componentTypes = []
-    componentTypes[0] =
-      displayName: 'Form'
-      name: 'form'
-    componentTypes[1] =
-      displayName: 'Full Form'
-      name: 'fullForm'
-    componentTypes[2] =
-      displayName: 'Serevice'
-      name: 'service'
-    componentTypes[3] =
-      displayName: 'Model'
-      name: 'model'
-    componentTypes[4] =
-      displayName: 'View'
-      name: 'view'
-    componentTypes[5] =
-      displayName: 'Controller'
-      name: 'controller'
-    componentTypes[6] =
-      displayName: 'Control Template'
-      name: 'controlTemplate'
-    componentTypes[7] =
-      displayName: 'Python Script'
-      name: 'pythonScript'
-    componentTypes[8] =
-      displayName: 'R Script'
-      name: 'rScript'
 
-    componentTypes = _.sortBy componentTypes, 'displayName'
+    componentTypes = []
+    @componentList.forEach (item, index) ->
+      displayName = item.replace(/([A-Z])/g, ' $1')
+                        .replace /^./, (str) -> return str.toUpperCase()
+      componentTypes.push {name: item, displayName: displayName}
+    @componentTypes = _.sortBy @componentTypes, 'displayName'
 
     @setItems componentTypes
 
@@ -112,29 +90,3 @@ class ComponentTypeView extends SelectListView
 
   populateList: ->
     super
-
-  # This is modified copy/paste from SelectListView#populateList, require jQuery!
-  # Should be temporary
-  populateAlternateList: ->
-
-    return unless @items?
-
-    filterQuery = @getFilterQuery()
-    if filterQuery.length
-      filteredItems = fuzzaldrinPlus.filter(@items, filterQuery, key: @getFilterKey())
-    else
-      filteredItems = @items
-
-    @list.empty()
-    if filteredItems.length
-      @setError(null)
-
-      for i in [0...Math.min(filteredItems.length, @maxItems)]
-        item = filteredItems[i]
-        itemView = $(@viewForItem(item))
-        itemView.data('select-list-item', item)
-        @list.append(itemView)
-
-      @selectItemView(@list.find('li:first'))
-    else
-      @setError(@getEmptyMessage(@items.length, filteredItems.length))
