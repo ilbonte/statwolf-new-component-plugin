@@ -28,11 +28,13 @@ describe "StatwolfNewComponentPluginView", ->
 
 
   describe 'when commands are triggered from the menu', ->
+
     it 'should attach and detach the events', ->
       expect($('statwolf-new-component-plugin')).not.toExist()
 
       atom.commands.dispatch workspaceElement, 'statwolf-new-component-plugin:toggleFullForm'
-      expect($('.statwolf-new-component-plugin')).toExist()
+      expect($('.statwolf-new-component-plugin')).not.toExist()
+      expect($('.component-type')).toExist()
 
 
   describe 'when a new component is required to be created', ->
