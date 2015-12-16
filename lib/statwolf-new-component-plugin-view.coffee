@@ -6,6 +6,7 @@ path       = require 'path'
 components = require 'statwolf-components'
 
 DirectoryListView    = require './directory-list-view'
+ComponentTypeView    = require './component-type-view'
 
 DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
 DEFAULT_PROJECT_ROOT = 'Project root'
@@ -366,7 +367,13 @@ class StatwolfNewComponentPluginView extends View
     @detaching = false
 
   attach: (suggested) ->
-    @suggestPath suggested
+    @suggestedPathFromSelection = suggested
+    componentTypeView = new ComponentTypeView
+    componentTypeView.toggle @
+
+  getComponentName: (compType) ->
+    @componentType = compType
+    @suggestPath @suggestedPathFromSelection
     @previouslyFocusedElement = $(":focus")
     @pathHistory = []
     @panel = atom.workspace.addModalPanel item: this

@@ -13,6 +13,9 @@
     "loophole": "^1.1.0",
     "fs-plus": "2.8.1",
     "statwolf-components": "1.0.x",
-    "atom-space-pen-views": "^2.1.x"
+    "atom-space-pen-views": "^2.1.x",
+    "underscore-plus": "^1.0.x",
+    "fuzzaldrin": "^2.1.x",
+    "fuzzaldrin-plus": "^0.1.x"
   }
 }
