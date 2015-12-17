@@ -30,7 +30,7 @@ the required component type, still some of them are pretty popular:
 * `[componentName].meta.json` contains some metadata about the component
 * `[componentName].deps.json` contains the component dependencies
 
-![New Component](https://raw.githubusercontent.com/b3by/statwolf-new-component-plugin/master/images/componentType.gif?raw=true)
+![New Component](https://raw.githubusercontent.com/Statwolf/statwolf-new-component-plugin/type-selection/images/componentType.gif)
 
 ### Statwolf path
 Another feature offered by the package is to copy the Statwolf path of any component
