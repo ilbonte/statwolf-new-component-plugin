@@ -40,13 +40,12 @@ class ComponentTypeView extends SelectListView
     else
       @eventElement = atom.views.getView(atom.workspace)
 
-
     componentTypes = []
     @componentList.forEach (item, index) ->
       displayName = item.replace(/([A-Z])/g, ' $1')
                         .replace /^./, (str) -> return str.toUpperCase()
       componentTypes.push {name: item, displayName: displayName}
-    @componentTypes = _.sortBy @componentTypes, 'displayName'
+    @componentTypes = _.sortBy @componentTypes, 'name'
 
     @setItems componentTypes
 

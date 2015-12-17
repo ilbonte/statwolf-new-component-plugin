@@ -29,3 +29,14 @@ the required component type, still some of them are pretty popular:
 
 * `[componentName].meta.json` contains some metadata about the component
 * `[componentName].deps.json` contains the component dependencies
+
+![New Component](https://raw.githubusercontent.com/b3by/statwolf-new-component-plugin/master/images/componentType.gif?raw=true)
+
+### Statwolf path
+Another feature offered by the package is to copy the Statwolf path of any component
+within the project. The Statwolf path is relative to the project and uses the dot
+as separator.
+
+### Component view
+When exploding the component view, a panel will be open, containing the meta info
+related to that component.
