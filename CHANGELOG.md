@@ -1,3 +1,9 @@
+## 0.1.13 - New component type selection panel
+* New component type selection panel added
+* Component context menus removed
+* General bug fixing
+* Tests fixed
+
 ## 0.1.12
 * Interface fix for Statwolf project root path
 * Travis CI support added
