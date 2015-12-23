@@ -17,3 +17,17 @@
       'command' : 'statwolf-new-component-plugin:copyStatwolfPath'
     }
   ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Statwolf'
+      'submenu': [
+        {
+          'label': 'Add new template'
+          'command': 'statwolf-new-component-plugin:addNewTemplate'
+        }
+      ]
+    ]
+  }
+]

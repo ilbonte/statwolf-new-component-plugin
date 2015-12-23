@@ -40,3 +40,61 @@ as separator.
 ### Component view
 When exploding the component view, a panel will be open, containing the meta info
 related to that component.
+
+### Templates
+Another feature provided by this package is the interface with the `statwolf-components`
+node module. This allows to import new template to the install folder of the npm
+package, so that they can be used when creating new components.
+
+In the navigation bar, the option `Packages -> Statwolf -> Add new template` will open
+the selection view for the template list. It expects the template list to be a
+valid JSON file containing an array with all the new templates to add. The template
+folders should exist at the same level of the template list.
+
+A valid template list looks like this:
+
+```
+{
+  "templates": [
+    "template1",
+    "template2",
+    "template3"
+  ]
+}
+```
+
+After the new templates are added, they become available when creating a new component.
+
+#### Creating a template
+New templates should contain at least one file named `templateName.json.hbs`, that
+is, a JSON file that can use the Handlebars syntax. This file should contain an
+array of all files that the template engine should create. An example of template is
+this:
+
+```
+[
+  {
+    "fileName": "{{name}}.js",
+    "fileContent": "component.js"
+  },
+  {
+    "fileName": "{{name}}.meta.json",
+    "fileContent": {
+      "ComponentType": "AwesomeComponent",
+      "Name": "{{name}}"
+    }
+  }
+]
+```
+
+In this case, when the template engine has to create a component of this type, it
+will get the component name (let's say, `ComponentName`) and generate three
+different files:
+* a file named `ComponentName.js`, for which the content will be fetched from the
+file `component.js` in the template folder (it has to be provided!)
+* a file named `ComponentName.meta.json` containing the JSON included in the `fileContent`
+property
+
+In the provided example, the template engine will create a component composed by
+two files. The first file content is specified in an external file, the second file
+content is specified as JSON in the template file itself.

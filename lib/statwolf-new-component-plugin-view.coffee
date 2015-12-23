@@ -20,6 +20,7 @@ class StatwolfNewComponentPluginView extends View
   componentView: null
 
   @detaching: false
+  @creatingTemplate: false
 
   @config:
     caseSensitiveAutoCompletion:
@@ -63,10 +64,11 @@ class StatwolfNewComponentPluginView extends View
 
   initialize: (serializeState) ->
     atom.commands.add('atom-workspace', {
-      'statwolf-new-component-plugin:toggle':        (event) => @toggle event
-      'statwolf-new-component-plugin:expandComponent':       (event) => @expandComponent event
-      'statwolf-new-component-plugin:showComponentExtra':    (event) => @showComponentExtra event
-      'statwolf-new-component-plugin:copyStatwolfPath':      (event) => @copyStatwolfPath event
+      'statwolf-new-component-plugin:toggle': (event) => @toggle event
+      'statwolf-new-component-plugin:expandComponent': (event) => @expandComponent event
+      'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
+      'statwolf-new-component-plugin:copyStatwolfPath': (event) => @copyStatwolfPath event
+      'statwolf-new-component-plugin:addNewTemplate': (event) => @addNewTemplate event
     })
 
     atom.commands.add @element,
@@ -96,7 +98,10 @@ class StatwolfNewComponentPluginView extends View
     else
       newPath = path.join @inputPath(), listItem.text()
       if not listItem.hasClass "directory"
-        @openOrCreate(newPath)
+        if @creatingTemplate
+          @addTemplate newPath
+        else
+          @openOrCreate newPath
       else
         @updatePath newPath + path.sep
 
@@ -217,7 +222,25 @@ class StatwolfNewComponentPluginView extends View
     if selected.length > 0
       @selectItem selected
     else
-      @openOrCreate @miniEditor.getText()
+      if @creatingTemplate
+        @addTemplate @miniEditor.getText()
+      else
+        @openOrCreate @miniEditor.getText()
+
+  addTemplate: (inputPath) ->
+    inputPath = @absolutify inputPath
+    unless fs.existsSync inputPath
+      @detach()
+      return
+
+    try
+      addedTemplates = components.templateHelper.addTemplateFromList inputPath
+      atom.notifications.addSuccess "#{addedTemplates.length} new templates added."
+    catch error
+      atom.notifications.addError error.message
+    finally
+      @detach()
+      @creatingTemplate = false
 
   openOrCreate: (inputPath) ->
     inputPath = @absolutify inputPath
@@ -290,6 +313,11 @@ class StatwolfNewComponentPluginView extends View
     catch error
       @setMessage 'alert', error.message
       return error.message
+
+  addNewTemplate: ->
+    @creatingTemplate = true
+    @suggestedPathFromSelection = process.env.HOME
+    @getComponentName()
 
   expandComponent: (event) ->
     selectedItem = event.target.attributes[2].textContent
@@ -456,7 +484,6 @@ class StatwolfNewComponentPluginView extends View
   toggle: (event) =>
     target = $(event.target)
     launchPath = target.data('path') or target.find('span').data('path')
-    # @componentType = type
     if @hasParent()
       @detach()
     else
