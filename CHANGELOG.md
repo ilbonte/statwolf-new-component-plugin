@@ -1,3 +1,10 @@
+## 0.1.16
+* Copy Statwolf path major bug fix
+
+## 0.1.15
+* Added support for including new templates
+* Small bug fixes
+
 ## 0.1.13 - New component type selection panel
 * New component type selection panel added
 * Component context menus removed

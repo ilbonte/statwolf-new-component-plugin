@@ -436,28 +436,23 @@ class StatwolfNewComponentPluginView extends View
 
   copyStatwolfPath: (event) ->
     target = $(event.target)
-    launchPath = target.data('path') or target.find('span').data('path') or target.find('div').data('path')
+    launchPath = target.data('path') or
+                 target.find('span').data('path') or
+                 target.find('div').data('path')
 
-    rootPaths    = atom.project.getPaths()
-    selectedPath = null
-    projectName  = null
+    projectName = 'Statwolf'
+    projectPath = atom.config.get 'statwolf-atom-configuration.rootPath'
 
-    rootPaths.forEach (rootPath) ->
-      [..., folderName] = rootPath.split path.sep
-      if folderName is atom.config.get 'statwolf-atom-configuration.rootPath'
-        selectedPath = rootPath
-        projectName = folderName
-
-    unless launchPath.split(selectedPath)[1]
+    unless launchPath.split(projectPath)[1]
       atom.notifications.addWarning 'Component path not copied', {detail: 'You selected an invalid Statwolf component.'}
 
-    relativePath = path.sep + projectName + launchPath.split(selectedPath)[1]
+    relativePath = path.sep + projectName + launchPath.split(projectPath)[1]
 
-    if fs.isFileSync launchPath then relativePath = path.dirname relativePath
+    if fs.isFileSync launchPath
+      relativePath = path.dirname relativePath
 
     relativePath = relativePath.replace(new RegExp('\\' + path.sep, 'g'), '.').slice 1
-
-    atom.clipboard.write relativePath
+    atom.clipboard.write relativePath.split('.').slice(1).join('.')
 
   getRoot: (inputPath) ->
     lastPath = null
