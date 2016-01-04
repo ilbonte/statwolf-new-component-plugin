@@ -52,6 +52,9 @@ class StatwolfNewComponentPluginView extends View
         outlet: 'message',
         class: 'icon icon-file-add',
         "Enter the path for the file/directory. Directories end with a "#{path.sep}"."
+      @label outlet: 'overwriteLabel', =>
+        @input outlet: 'overwriteCheckbox', type: 'checkbox'
+        @text ' Overwrite existing templates'
       @subview 'miniEditor', new TextEditorView({mini:true})
       @subview 'directoryListView', new DirectoryListView()
 
@@ -198,9 +201,9 @@ class StatwolfNewComponentPluginView extends View
       @renderAutocompleteList files
 
     if @miniEditor.getText().endsWith path.sep
-      @setMessage "file-directory-create"
+      @setMessage 'file-directory-create'
     else
-      @setMessage "file-add"
+      @setMessage 'file-add'
 
   setMessage: (icon, str) ->
     @message.removeClass "icon"\
@@ -234,13 +237,13 @@ class StatwolfNewComponentPluginView extends View
       return
 
     try
-      addedTemplates = components.templateHelper.addTemplateFromList inputPath
+      overwrite = @overwriteLabel[0].childNodes[0].checked
+      addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite
       atom.notifications.addSuccess "#{addedTemplates.length} new templates added."
     catch error
       atom.notifications.addError error.message
     finally
       @detach()
-      @creatingTemplate = false
 
   openOrCreate: (inputPath) ->
     inputPath = @absolutify inputPath
@@ -358,13 +361,14 @@ class StatwolfNewComponentPluginView extends View
     @moveCursorTo selected
 
   moveCursorTo: (selectedElement) ->
-    @find(".list-item").removeClass("selected")
-    selectedElement.addClass("selected")
+    @find(".list-item").removeClass 'selected'
+    selectedElement.addClass 'selected'
 
     parent = selectedElement.parent()
     parentHeight = parent.height()
     selectedPos = selectedElement.position()
     selectedHeight = selectedElement.height()
+
     if selectedPos.top < 0
       parent.scrollTop(selectedPos.top + parent.scrollTop())
     else if selectedPos.top + selectedHeight > parentHeight
@@ -372,6 +376,9 @@ class StatwolfNewComponentPluginView extends View
       parent.scrollTop(distanceBelow + selectedHeight + parent.scrollTop())
 
   detach: ->
+    @creatingTemplate = false
+    @overwriteLabel[0].childNodes[0].checked = false
+    @overwriteLabel.removeClass 'hidden'
     $("html").off("click", @outsideClickHandler) unless not @outsideClickHandler
     @outsideClickHandler = null
     return unless @hasParent()
@@ -399,6 +406,9 @@ class StatwolfNewComponentPluginView extends View
     @previouslyFocusedElement = $(":focus")
     @pathHistory = []
     @panel = atom.workspace.addModalPanel item: this
+
+    if not @creatingTemplate
+      @overwriteLabel.addClass 'hidden'
 
     @parent(".modal").css({
       "max-height": "100%",
