@@ -45,6 +45,11 @@ class StatwolfNewComponentPluginView extends View
       description: 'Automatically open extra panel when a new component has been created'
       type: 'boolean'
       default: false
+    externalTemplateDir:
+      title: 'External templates folder'
+      description: 'The location to store all the external templates'
+      type: 'string'
+      default: path.join atom.getUserInitScriptPath(), '..', path.sep, 'externalTemplates'
 
   @content: (params) ->
     @div class: 'statwolf-new-component-plugin', =>
@@ -238,7 +243,7 @@ class StatwolfNewComponentPluginView extends View
 
     try
       overwrite = @overwriteLabel[0].childNodes[0].checked
-      addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite
+      addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite, atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
       atom.notifications.addSuccess "#{addedTemplates.length} new templates added."
     catch error
       atom.notifications.addError error.message
@@ -278,32 +283,15 @@ class StatwolfNewComponentPluginView extends View
         path: path.dirname path.dirname componentFullName
 
       if @componentType is 'fullForm'
-
         basePath = componentFullName.split(atom.config.get 'statwolf-atom-configuration.rootPath')[1].slice 1
-
-        @componentType = 'form'
         context.bind = true
         context.basePath = path.dirname basePath
-        context.componentDeps = [
-           componentType: 'service'
-           suffix: 'Service'
-          ,
-           componentType: 'model'
-           suffix: 'Model'
-           servicePointer: basePath
-          ,
-           componentType: 'view',
-           suffix: 'View'
-          ,
-           componentType: 'controller'
-           suffix: 'Controller'
-        ]
 
       getTemplates = allowUnsafeEval -> allowUnsafeNewFunction ->
         components.templateHelper.getFileListForType
 
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
-        getTemplates @componentType, context
+        getTemplates @componentType, context, atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
 
       for file in filesToCreate
         fs.writeFileSync file.path, file.content
@@ -396,8 +384,7 @@ class StatwolfNewComponentPluginView extends View
   attach: (suggested) ->
     @suggestedPathFromSelection = suggested
     componentTypeView = new ComponentTypeView
-    typeList = components.templateHelper.getTemplateList()
-    typeList.push 'fullForm'
+    typeList = components.templateHelper.getTemplateList atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
     componentTypeView.toggle @, typeList
 
   getComponentName: (compType) ->

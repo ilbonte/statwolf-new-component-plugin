@@ -65,36 +65,29 @@ A valid template list looks like this:
 
 After the new templates are added, they become available when creating a new component.
 
+When selecting the template list location in Atom, it is possible to specify
+whether to overwrite the existing templates, in case some freshly imported template
+already exists in the destination folder.
+
 #### Creating a template
-New templates should contain at least one file named `templateName.json.hbs`, that
-is, a JSON file that can use the Handlebars syntax. This file should contain an
-array of all files that the template engine should create. An example of template is
-this:
+New templates can be composed by as many files as needed. When creating a new
+template, each file name can be a string that will be parsed by Handlebars.
 
-```
-[
-  {
-    "fileName": "{{name}}.js",
-    "fileContent": "component.js"
-  },
-  {
-    "fileName": "{{name}}.meta.json",
-    "fileContent": {
-      "ComponentType": "AwesomeComponent",
-      "Name": "{{name}}"
-    }
-  }
-]
-```
+As an example, let's consider the Model template. It is composed by 3 files,
+respectively:
 
-In this case, when the template engine has to create a component of this type, it
-will get the component name (let's say, `ComponentName`) and generate three
-different files:
-* a file named `ComponentName.js`, for which the content will be fetched from the
-file `component.js` in the template folder (it has to be provided!)
-* a file named `ComponentName.meta.json` containing the JSON included in the `fileContent`
-property
+- `{{name}}{{pathSep}}{{name}}.json`
+- `{{name}}{{pathSep}}{{name}}.meta.json`
+- `{{name}}{{pathSep}}{{name}}.test.js`
 
-In the provided example, the template engine will create a component composed by
-two files. The first file content is specified in an external file, the second file
-content is specified as JSON in the template file itself.
+Each file can contain some template content that will be parsed by Handlebars, or
+just static content. In the Model example, Atom will invoke the template
+engine with a `name` variable, along with a `path` variable: those variables will
+be used when parsing the template.
+
+The template engine also provides some helpers that can perform some basic operations.
+In the example, `pathSep` is an helper that just returns the path separator in the
+current environment (either `/` or `\`). Other helpers are:
+
+- `json` returns the stringified version of an object
+- `swPath` returns the Statwolf representation of a path (using the dot as separator)
