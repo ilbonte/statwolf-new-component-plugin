@@ -176,12 +176,8 @@ class StatwolfNewComponentPluginView extends View
             not caseSensitive and filename.toLowerCase().indexOf(fragment) is 0
 
           if matches
-            filePath = path.join(inputPath, filename)
-
-            try
-              isDir = fs.statSync(filePath).isDirectory()
-            catch
-              ## TODO fix error which is thrown when you hold backspace
+            filePath = path.join inputPath, filename
+            isDir = fs.statSync(filePath).isDirectory()
 
             (if isDir then dirList else fileList).push({
               name: filename,
@@ -242,9 +238,7 @@ class StatwolfNewComponentPluginView extends View
       + " icon-file-directory-create"\
       + " icon-alert"
     if icon? then @message.addClass "icon icon-" + icon
-    @message.text str or "
-      Enter the path for the file/directory. Separator is '#{path.sep}'.
-    "
+    @message.text str or "Enter the path for the file/directory. Separator is '#{path.sep}'."
 
   renderAutocompleteList: (files) ->
     inputPath = @absolutify @inputPath()
@@ -286,7 +280,6 @@ class StatwolfNewComponentPluginView extends View
         @detach()
       else
         atom.beep()
-
       return
 
     createWithin = path.dirname inputPath
@@ -304,7 +297,6 @@ class StatwolfNewComponentPluginView extends View
         throw new Error 'Invalid path specified.'
 
       componentFullName = inputPath + path.sep + last
-
       context =
         name: last
         path: path.dirname path.dirname componentFullName
@@ -315,12 +307,9 @@ class StatwolfNewComponentPluginView extends View
         context.bind = true
         context.basePath = path.dirname basePath
 
-      getTemplates = allowUnsafeEval -> allowUnsafeNewFunction ->
-        components.templateHelper.getFileListForType
-
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
         tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
-        getTemplates @componentType, context, tptDir
+        components.templateHelper.getFileListForType @componentType, context, tptDir
 
       for file in filesToCreate
         fs.writeFileSync file.path, file.content
@@ -434,10 +423,10 @@ class StatwolfNewComponentPluginView extends View
       "flex-direction": "column",
     })
 
-    @outsideClickHandler = (ev) =>
-      if not $(ev.target).closest('.statwolf-new-component-plugin').length
+    @outsideClickHandler = (event) =>
+      if not $(event.target).closest('.statwolf-new-component-plugin').length
         @detach()
-    $("html").on "click", @outsideClickHandler
+    $('html').on 'click', @outsideClickHandler
 
     @miniEditor.focus()
     @miniEditor.getModel().setCursorScreenPosition [0, 10000], autoscroll: true

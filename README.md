@@ -73,21 +73,52 @@ already exists in the destination folder.
 New templates can be composed by as many files as needed. When creating a new
 template, each file name can be a string that will be parsed by Handlebars.
 
-As an example, let's consider the Model template. It is composed by 3 files,
-respectively:
+As an example, let's consider the Full Form template. It is composed by this file structure:
 
-- `{{name}}{{pathSep}}{{name}}.json`
-- `{{name}}{{pathSep}}{{name}}.meta.json`
-- `{{name}}{{pathSep}}{{name}}.test.js`
+```
+model
+└───{{name}}
+    ├───{{name}}
+    │   │   {{name}}.json
+    │   │   {{name}}.meta.json
+    │   │   {{name}}.bindings.json
+    │   │   {{name}}.test.js
+    │
+    ├───{{name}}Controller
+    │   │   {{name}}Controller.js
+    │   │   {{name}}Controller.deps.json
+    │   │   {{name}}Controller.meta.json
+    │   │   {{name}}Controller.test.js
+    │
+    ├───{{name}}Model
+    │   │   {{name}}Model.json
+    │   │   {{name}}Model.meta.json
+    │   │   {{name}}Model.test.js
+    │
+    ├───{{name}}Service
+    │   │   {{name}}Service.js
+    │   │   {{name}}Service.deps.json
+    │   │   {{name}}Service.meta.json
+    │   │   {{name}}Service.test.js
+    │
+    ├───{{name}}View
+    │   │   {{name}}View.js
+    │   │   {{name}}View.deps.json
+    │   │   {{name}}View.meta.json
+    │   │   {{name}}View.test.js
+```
 
 Each file can contain some template content that will be parsed by Handlebars, or
-just static content. In the Model example, Atom will invoke the template
-engine with a `name` variable, along with a `path` variable: those variables will
-be used when parsing the template.
+just static content. In the Full Form example, Atom will invoke the template
+engine with a `name` variable, along with many others provided in the context object:
+those variables will be used when parsing the template.
 
-The template engine also provides some helpers that can perform some basic operations.
+The template engine also provides some helpers that can perform basic operations.
 In the example, `pathSep` is an helper that just returns the path separator in the
 current environment (either `/` or `\`). Other helpers are:
 
 - `json` returns the stringified version of an object
 - `swPath` returns the Statwolf representation of a path (using the dot as separator)
+- `joinPath` returns the concatenation of the arguments with the system path separator
+ (it should be invoked like this: `{{joinPath 'first second third'}}` and will
+ produce `first/second/third`)
