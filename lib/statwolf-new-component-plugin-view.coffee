@@ -5,8 +5,9 @@ fs         = require 'fs-plus'
 path       = require 'path'
 components = require 'statwolf-components'
 
-DirectoryListView    = require './directory-list-view'
-ComponentTypeView    = require './component-type-view'
+DirectoryListView = require './directory-list-view'
+ComponentTypeView = require './component-type-view'
+SnippetListView   = require './snippet-list-view'
 
 DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
 DEFAULT_PROJECT_ROOT = 'Project root'
@@ -77,6 +78,7 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
       'statwolf-new-component-plugin:copyStatwolfPath': (event) => @copyStatwolfPath event
       'statwolf-new-component-plugin:addNewTemplate': (event) => @addNewTemplate event
+      'statwolf-new-component-plugin:pasteComponentSnippet': (event) => @getSnippetsAndOpenListView event
     })
 
     atom.commands.add @element,
@@ -88,7 +90,7 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:move-cursor-up': => @moveCursorUp()
 
     @directoryListView.on 'click', ".list-item", (ev) => @clickItem(ev)
-    @directoryListView.on 'click', ".add-project-folder", (ev) => @addProjectFolder(ev)
+    # @directoryListView.on 'click', ".add-project-folder", (ev) => @addProjectFolder(ev)
 
     editor = @miniEditor.getModel()
     editor.setPlaceholderText './'
@@ -113,11 +115,36 @@ class StatwolfNewComponentPluginView extends View
       else
         @updatePath newPath + path.sep
 
-  addProjectFolder: (ev) ->
-    listItem = $(ev.currentTarget).parent(".list-item")
-    folderPath = path.join @inputPath(), listItem.text()
-    atom.project.addPath(folderPath)
-    @detach()
+  # addProjectFolder: (ev) ->
+  #   listItem = $(ev.currentTarget).parent(".list-item")
+  #   folderPath = path.join @inputPath(), listItem.text()
+  #   atom.project.addPath(folderPath)
+  #   @detach()
+
+  getSnippetsAndOpenListView: (event) ->
+    editor = null
+    unless editor = atom.workspace.getActiveTextEditor()
+      return
+
+    filePath = path.parse editor.getPath()
+    metaPath = filePath.dir + path.sep + filePath.name + '.meta.json'
+
+    unless fs.existsSync metaPath
+      return
+
+    snippets = JSON.parse(fs.readFileSync metaPath).Snippets
+    console.log 'snippets found'
+    console.log snippets
+    snippetList = []
+    snippets.forEach (snippet) ->
+      snippetList.push snippet.body
+    snippetListView = new SnippetListView
+
+    snippetListView.toggle @, snippets
+
+  pasteSnippetIntoEditor: (snippet) ->
+    if editor = atom.workspace.getActiveTextEditor()
+      editor.insertText snippet
 
   inputPath: () ->
     input = @miniEditor.getText()
@@ -243,7 +270,8 @@ class StatwolfNewComponentPluginView extends View
 
     try
       overwrite = @overwriteLabel[0].childNodes[0].checked
-      addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite, atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+      tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+      addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite, tptDir
       atom.notifications.addSuccess "#{addedTemplates.length} new templates added."
     catch error
       atom.notifications.addError error.message
@@ -283,7 +311,8 @@ class StatwolfNewComponentPluginView extends View
         path: path.dirname path.dirname componentFullName
 
       if @componentType is 'fullForm'
-        basePath = componentFullName.split(atom.config.get 'statwolf-atom-configuration.rootPath')[1].slice 1
+        rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
+        basePath = componentFullName.split(rPath)[1].slice 1
         context.bind = true
         context.basePath = path.dirname basePath
 
@@ -291,7 +320,8 @@ class StatwolfNewComponentPluginView extends View
         components.templateHelper.getFileListForType
 
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
-        getTemplates @componentType, context, atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+        tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+        getTemplates @componentType, context, tptDir
 
       for file in filesToCreate
         fs.writeFileSync file.path, file.content
@@ -384,7 +414,9 @@ class StatwolfNewComponentPluginView extends View
   attach: (suggested) ->
     @suggestedPathFromSelection = suggested
     componentTypeView = new ComponentTypeView
-    typeList = components.templateHelper.getTemplateList atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+
+    tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+    typeList = components.templateHelper.getTemplateList tptDir
     componentTypeView.toggle @, typeList
 
   getComponentName: (compType) ->
@@ -489,9 +521,9 @@ class StatwolfNewComponentPluginView extends View
 
   longestCommonPrefix: (fileNames) ->
     if (fileNames?.length == 0)
-      return ""
+      return ''
 
-    longestCommonPrefix = ""
+    longestCommonPrefix = ''
     for prefixIndex in [0..fileNames[0].length - 1]
       nextCharacter = fileNames[0][prefixIndex]
       for fileIndex in [0..fileNames.length - 1]

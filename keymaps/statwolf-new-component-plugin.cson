@@ -1,2 +1,3 @@
 'atom-workspace':
   'ctrl-o': 'statwolf-new-component-plugin:showComponentExtra'
+  'ctrl-alt-v': 'statwolf-new-component-plugin:pasteComponentSnippet'
