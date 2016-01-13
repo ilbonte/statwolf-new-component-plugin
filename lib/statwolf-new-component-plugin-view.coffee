@@ -304,6 +304,7 @@ class StatwolfNewComponentPluginView extends View
       if @componentType is 'fullForm'
         rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
         basePath = componentFullName.split(rPath)[1].slice 1
+        context.servicePointer = basePath + 'Service'
         context.bind = true
         context.basePath = path.dirname basePath
 
