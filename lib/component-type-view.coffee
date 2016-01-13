@@ -14,12 +14,13 @@ class ComponentTypeView extends SelectListView
 
   initialize: ->
     super
-    @addClass('component-type')
+    @addClass 'component-type'
 
   getFilterKey: ->
     'displayName'
 
-  cancelled: -> @hide()
+  cancelled: ->
+    @hide()
 
   toggle: (owner, componentList) ->
     if @panel?.isVisible()

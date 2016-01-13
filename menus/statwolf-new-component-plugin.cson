@@ -10,6 +10,10 @@
       'label' : 'New Statwolf component'
       'command': 'statwolf-new-component-plugin:toggle'
     }
+    {
+      'label': 'Get component snippets'
+      'command': 'statwolf-new-component-plugin:getComponentSnippets'
+    }
   ]
   '.tab': [
     {

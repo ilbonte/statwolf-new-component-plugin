@@ -7,7 +7,7 @@ module.exports =
 class SnippetListView extends SelectListView
 
   @activate: () ->
-    view = new ComponentTypeView
+    view = new SnippetListView
 
   @deactivate: ->
     @disposable.dispose()

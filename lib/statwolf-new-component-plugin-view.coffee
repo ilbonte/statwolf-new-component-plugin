@@ -78,7 +78,8 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
       'statwolf-new-component-plugin:copyStatwolfPath': (event) => @copyStatwolfPath event
       'statwolf-new-component-plugin:addNewTemplate': (event) => @addNewTemplate event
-      'statwolf-new-component-plugin:pasteComponentSnippet': (event) => @getSnippetsAndOpenListView event
+      'statwolf-new-component-plugin:pasteComponentSnippet': (event) => @getSnippetsForCurrentComponent event
+      'statwolf-new-component-plugin:getComponentSnippets': (event) => @getSnippetsForSelectedComponent event
     })
 
     atom.commands.add @element,
@@ -89,24 +90,24 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:move-cursor-down': => @moveCursorDown()
       'statwolf-new-component-plugin:move-cursor-up': => @moveCursorUp()
 
-    @directoryListView.on 'click', ".list-item", (ev) => @clickItem(ev)
+    @directoryListView.on 'click', ".list-item", (ev) => @clickItem item
 
     editor = @miniEditor.getModel()
     editor.setPlaceholderText './'
     editor.setSoftWrapped false
 
-  clickItem: (ev) ->
-    listItem = $(ev.currentTarget)
+  clickItem: (item) ->
+    listItem = $(item.currentTarget)
     @selectItem listItem
     @miniEditor.focus()
 
   selectItem: (listItem) ->
-    if listItem.hasClass "parent-directory"
+    if listItem.hasClass 'parent-directory'
       newPath = path.dirname(@inputPath()) + path.sep
       @updatePath newPath
     else
       newPath = path.join @inputPath(), listItem.text()
-      if not listItem.hasClass "directory"
+      if not listItem.hasClass 'directory'
         if @creatingTemplate
           @addTemplate newPath
         else
@@ -114,14 +115,21 @@ class StatwolfNewComponentPluginView extends View
       else
         @updatePath newPath + path.sep
 
-  getSnippetsAndOpenListView: (event) ->
+  getSnippetsForCurrentComponent: (event) ->
     editor = null
     unless editor = atom.workspace.getActiveTextEditor()
       return
 
     filePath = path.parse editor.getPath()
     metaPath = filePath.dir + path.sep + filePath.name + '.meta.json'
+    @getSnippetsAndOpenListView metaPath
 
+  getSnippetsForSelectedComponent: (event) ->
+    filePath = path.parse @getSelectedComponentFromEvent event
+    metaPath = filePath.dir + path.sep + filePath.name + '.meta.json'
+    @getSnippetsAndOpenListView metaPath
+
+  getSnippetsAndOpenListView: (metaPath) ->
     unless fs.existsSync metaPath
       return
 
@@ -129,8 +137,8 @@ class StatwolfNewComponentPluginView extends View
     snippetList = []
     snippets.forEach (snippet) ->
       snippetList.push snippet.body
-    snippetListView = new SnippetListView
 
+    snippetListView = new SnippetListView
     snippetListView.toggle @, snippets
 
   pasteSnippetIntoEditor: (snippet) ->
@@ -332,7 +340,7 @@ class StatwolfNewComponentPluginView extends View
     @getComponentName()
 
   expandComponent: (event) ->
-    selectedItem = event.target.attributes[2].textContent
+    selectedItem = @getSelectedComponentFromEvent event
     if fs.isFileSync selectedItem
       selectedItem = path.dirname selectedItem
     @showComponentPanel selectedItem
@@ -455,11 +463,7 @@ class StatwolfNewComponentPluginView extends View
     @miniEditor.setText suggestedPath
 
   copyStatwolfPath: (event) ->
-    target = $(event.target)
-    launchPath = target.data('path') or
-                 target.find('span').data('path') or
-                 target.find('div').data('path')
-
+    launchPath = @getSelectedComponentFromEvent event
     projectName = 'Statwolf'
     projectPath = atom.config.get 'statwolf-atom-configuration.rootPath'
 
@@ -497,12 +501,18 @@ class StatwolfNewComponentPluginView extends View
     return absolutePath
 
   toggle: (event) =>
-    target = $(event.target)
-    launchPath = target.data('path') or target.find('span').data('path')
+    launchPath = @getSelectedComponentFromEvent event
     if @hasParent()
       @detach()
     else
       @attach launchPath
+
+  getSelectedComponentFromEvent: (event) ->
+    target = $(event.target)
+    launchPath = target.data('path') or
+                 target.find('span').data('path') or
+                 target.find('div').data('path')
+    return launchPath
 
   restoreFocus: ->
     if @previouslyFocusedElement?.isOnDom()
