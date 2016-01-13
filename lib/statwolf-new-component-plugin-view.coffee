@@ -90,7 +90,6 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:move-cursor-up': => @moveCursorUp()
 
     @directoryListView.on 'click', ".list-item", (ev) => @clickItem(ev)
-    # @directoryListView.on 'click', ".add-project-folder", (ev) => @addProjectFolder(ev)
 
     editor = @miniEditor.getModel()
     editor.setPlaceholderText './'
@@ -115,12 +114,6 @@ class StatwolfNewComponentPluginView extends View
       else
         @updatePath newPath + path.sep
 
-  # addProjectFolder: (ev) ->
-  #   listItem = $(ev.currentTarget).parent(".list-item")
-  #   folderPath = path.join @inputPath(), listItem.text()
-  #   atom.project.addPath(folderPath)
-  #   @detach()
-
   getSnippetsAndOpenListView: (event) ->
     editor = null
     unless editor = atom.workspace.getActiveTextEditor()
@@ -133,8 +126,6 @@ class StatwolfNewComponentPluginView extends View
       return
 
     snippets = JSON.parse(fs.readFileSync metaPath).Snippets
-    console.log 'snippets found'
-    console.log snippets
     snippetList = []
     snippets.forEach (snippet) ->
       snippetList.push snippet.body

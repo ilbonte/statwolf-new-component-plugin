@@ -12,16 +12,11 @@ class SnippetListView extends SelectListView
   @deactivate: ->
     @disposable.dispose()
 
-  previews: null
-
-  initialize: ->
-    super
-    @addClass 'snippet'
-
   getFilterKey: ->
     'name'
 
-  cancelled: -> @hide()
+  cancelled: ->
+    @hide()
 
   toggle: (owner, snippets) ->
     if @panel?.isVisible()
@@ -60,31 +55,7 @@ class SnippetListView extends SelectListView
     @panel?.hide()
 
   viewForItem: ({name, body, eventDescription}) ->
-    previews = @previews
-    filterQuery = @getFilterQuery()
-    matches = match name, filterQuery
-
     $$ ->
-      highlighter = (command, matches, offsetIndex) =>
-        lastIndex = 0
-        matchedChars = [] # Build up a set of matched chars to be more semantic
-
-        for matchIndex in matches
-          matchIndex -= offsetIndex
-          continue if matchIndex < 0 # If marking up the basename, omit command matches
-          unmatched = command.substring(lastIndex, matchIndex)
-          if unmatched
-            @span matchedChars.join(''), class: 'character-match' if matchedChars.length
-            matchedChars = []
-            @text unmatched
-          matchedChars.push(command[matchIndex])
-          lastIndex = matchIndex + 1
-
-        @span matchedChars.join(''), class: 'character-match' if matchedChars.length
-
-        # Remaining characters are plain text
-        @text command.substring(lastIndex)
-
       @li class: 'event', 'data-event-name': name, =>
         @div class: 'pull-right', =>
           bodyPreview = if body.length < 25 then body else body.slice(0, 22) + '...'
