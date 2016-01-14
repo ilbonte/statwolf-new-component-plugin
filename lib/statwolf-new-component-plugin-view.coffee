@@ -298,10 +298,7 @@ class StatwolfNewComponentPluginView extends View
 
       componentFullName = inputPath + path.sep + last
       rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
-      console.log 'root path: ' + rPath
-      console.log 'component full name: ' + componentFullName
       basePath = componentFullName.split(rPath)[1].slice 1
-      console.log 'base path: ' + basePath
 
       context =
         name: last
@@ -310,7 +307,6 @@ class StatwolfNewComponentPluginView extends View
 
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
         tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
-        console.log ''
         components.templateHelper.getFileListForType @componentType, context, tptDir
 
       for file in filesToCreate
