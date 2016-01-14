@@ -45,7 +45,7 @@ class SnippetListView extends SelectListView
         bodyPreview = bodyPreview.slice(0, 22) + '...'
       snippetList.push {name: item.title, body: item.body}
       @previews.push bodyPreview
-    @snippetList = _.sortBy @snippetList, 'name'
+    snippetList = _.sortBy snippetList, 'name'
 
     @setItems snippetList
 

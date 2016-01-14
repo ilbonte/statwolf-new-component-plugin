@@ -46,7 +46,7 @@ class ComponentTypeView extends SelectListView
       displayName = item.replace(/([A-Z])/g, ' $1')
                         .replace /^./, (str) -> return str.toUpperCase()
       componentTypes.push {name: item, displayName: displayName}
-    @componentTypes = _.sortBy @componentTypes, 'name'
+    componentTypes = _.sortBy componentTypes, 'name'
 
     @setItems componentTypes
 
