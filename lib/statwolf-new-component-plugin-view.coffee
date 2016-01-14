@@ -297,16 +297,13 @@ class StatwolfNewComponentPluginView extends View
         throw new Error 'Invalid path specified.'
 
       componentFullName = inputPath + path.sep + last
+      rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
+      basePath = componentFullName.split(rPath)[1].slice 1
+
       context =
         name: last
         path: path.dirname path.dirname componentFullName
-
-      if @componentType is 'fullForm'
-        rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
-        basePath = componentFullName.split(rPath)[1].slice 1
-        context.servicePointer = basePath + 'Service'
-        context.bind = true
-        context.basePath = path.dirname basePath
+        basePath: path.dirname basePath
 
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
         tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
