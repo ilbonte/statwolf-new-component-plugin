@@ -10,6 +10,7 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
+    "handlebars": "^4.0.x",
     "loophole": "^1.1.0",
     "fs-plus": "2.8.1",
     "statwolf-components": "1.0.x",

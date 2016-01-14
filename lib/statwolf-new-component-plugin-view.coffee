@@ -4,6 +4,7 @@
 fs         = require 'fs-plus'
 path       = require 'path'
 components = require 'statwolf-components'
+Handlebars = require 'handlebars'
 
 DirectoryListView = require './directory-list-view'
 ComponentTypeView = require './component-type-view'
@@ -120,13 +121,19 @@ class StatwolfNewComponentPluginView extends View
     unless editor = atom.workspace.getActiveTextEditor()
       return
 
-    filePath = path.parse editor.getPath()
+    currentPath = editor.getPath()
+    unless currentPath
+      return
+
+    filePath = path.parse currentPath
+    @snippetFilePath = filePath
     metaPath = filePath.dir + path.sep + filePath.name + '.meta.json'
     @getSnippetsAndOpenListView metaPath
 
   getSnippetsForSelectedComponent: (event) ->
     filePath = path.parse @getSelectedComponentFromEvent event
-    metaPath = filePath.dir + path.sep + filePath.name + '.meta.json'
+    @snippetFilePath = filePath
+    metaPath = path.join(filePath.dir, filePath.base, filePath.name) + '.meta.json'
     @getSnippetsAndOpenListView metaPath
 
   getSnippetsAndOpenListView: (metaPath) ->
@@ -142,8 +149,26 @@ class StatwolfNewComponentPluginView extends View
     snippetListView.toggle @, snippets
 
   pasteSnippetIntoEditor: (snippet) ->
-    if editor = atom.workspace.getActiveTextEditor()
-      editor.insertText snippet
+    unless editor = atom.workspace.getActiveTextEditor()
+      return
+
+    env = atom.config.get 'statwolf-atom-configuration.env'
+    env += 'EnvConfig'
+    filePath = @snippetFilePath.dir
+    swPath = filePath.split((atom.config.get 'statwolf-atom-configuration.rootPath') + path.sep)[1]
+
+    context =
+      hostname: atom.config.get 'statwolf-atom-configuration.' + env + '.host'
+      port: atom.config.get 'statwolf-atom-configuration.' + env + '.port'
+      user: atom.config.get 'statwolf-atom-configuration.' + env + '.userId'
+      componentName: @snippetFilePath.name
+      internalPath: swPath.split(path.sep).join('.')
+
+    template = Handlebars.compile snippet
+    outcome  = allowUnsafeEval => allowUnsafeNewFunction =>
+      template context
+
+    editor.insertText outcome
 
   inputPath: () ->
     input = @miniEditor.getText()

@@ -33,23 +33,24 @@ the required component type, still some of them are pretty popular:
 ![New Component](https://raw.githubusercontent.com/Statwolf/statwolf-new-component-plugin/type-selection/images/componentType.gif)
 
 ### Statwolf path
-Another feature offered by the package is to copy the Statwolf path of any component
-within the project. The Statwolf path is relative to the project and uses the dot
-as separator.
+Another feature offered by the package is to copy the Statwolf path of any
+component within the project. The Statwolf path is relative to the project and
+uses the dot as separator.
 
 ### Component view
-When exploding the component view, a panel will be open, containing the meta info
-related to that component.
+When exploding the component view, a panel will be open, containing the meta
+info related to that component.
 
 ### Templates
-Another feature provided by this package is the interface with the `statwolf-components`
-node module. This allows to import new template to the install folder of the npm
-package, so that they can be used when creating new components.
+Another feature provided by this package is the interface with the
+`statwolf-components` node module. This allows to import new template to the
+install folder of the npm package, so that they can be used when creating new
+components.
 
-In the navigation bar, the option `Packages -> Statwolf -> Add new template` will open
-the selection view for the template list. It expects the template list to be a
-valid JSON file containing an array with all the new templates to add. The template
-folders should exist at the same level of the template list.
+In the navigation bar, the option `Packages -> Statwolf -> Add new template`
+will open the selection view for the template list. It expects the template list
+to be a valid JSON file containing an array with all the new templates to add.
+The template folders should exist at the same level of the template list.
 
 A valid template list looks like this:
 
@@ -63,17 +64,23 @@ A valid template list looks like this:
 }
 ```
 
-After the new templates are added, they become available when creating a new component.
+After the new templates are added, they become available when creating a new
+component.
 
 When selecting the template list location in Atom, it is possible to specify
-whether to overwrite the existing templates, in case some freshly imported template
-already exists in the destination folder.
+whether to overwrite the existing templates, in case some freshly imported
+template already exists in the destination folder.
+
+Another way to sync templates with the package is simply copy the template
+folders in the configured template directory (see atom configurations for
+editing this location).
 
 #### Creating a template
 New templates can be composed by as many files as needed. When creating a new
 template, each file name can be a string that will be parsed by Handlebars.
 
-As an example, let's consider the Full Form template. It is composed by this file structure:
+As an example, let's consider the Full Form template. It is composed by this
+file structure:
 
 ```
 model
@@ -108,17 +115,35 @@ model
     │   │   {{name}}View.test.js
 ```
 
-Each file can contain some template content that will be parsed by Handlebars, or
-just static content. In the Full Form example, Atom will invoke the template
-engine with a `name` variable, along with many others provided in the context object:
-those variables will be used when parsing the template.
+Each file can contain some template content that will be parsed by Handlebars,
+or just static content. In the Full Form example, Atom will invoke the template
+engine with a `name` variable, along with many others provided in the context
+object: those variables will be used when parsing the template.
 
 The template engine also provides some helpers that can perform basic operations.
-In the example, `pathSep` is an helper that just returns the path separator in the
-current environment (either `/` or `\`). Other helpers are:
+In the example, `pathSep` is an helper that just returns the path separator in
+the current environment (either `/` or `\`). Other helpers are:
 
 - `json` returns the stringified version of an object
 - `swPath` returns the Statwolf representation of a path (using the dot as separator)
 - `joinPath` returns the concatenation of the arguments with the system path separator
  (it should be invoked like this: `{{joinPath 'first second third'}}` and will
  produce `first/second/third`)
+
+### Snippets
+New components may carry with them some snippet templates in their meta files.
+If this is the case, the package can fetch those snippets, compile them with
+Handlebars and paste them where required.
+
+When working with a component, `ctrl-alt-v` will show a list view where the user
+can pick the snippet that will be pasted in the buffer. Alternatively, the user can
+right click on any component folder or component file in the tree view and select
+**Get component snippets** and the list view will be shown.
+
+When parsing a snippet, some information is passed to it. That is:
+
+- `hostname`: the hostname currently active
+- `port`: the port currently active
+- `userId`: the user currently active
+- `componentName`: the name of the component that triggered the snippet
+- `internalPath`: the Statwolf representation of the component path
