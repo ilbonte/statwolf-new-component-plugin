@@ -10,10 +10,6 @@ DirectoryListView = require './directory-list-view'
 ComponentTypeView = require './component-type-view'
 SnippetListView   = require './snippet-list-view'
 
-DEFAULT_SELECTED_DIR = 'Selected file\'s directory'
-DEFAULT_PROJECT_ROOT = 'Project root'
-DEFAULT_EMPTY        = 'Empty'
-
 module.exports =
 class StatwolfNewComponentPluginView extends View
 
@@ -35,23 +31,11 @@ class StatwolfNewComponentPluginView extends View
                     immediately instead of on save."
       type: 'boolean'
       default: true
-    defaultInputValue:
-      title: 'Default input value'
-      description: 'What should the path input default to when the dialog
-                    is opened?'
-      type: 'string'
-      enum: [DEFAULT_SELECTED_DIR, DEFAULT_PROJECT_ROOT, DEFAULT_EMPTY]
-      default: DEFAULT_SELECTED_DIR
     openExtraPanel:
       title: 'Open extra panel'
       description: 'Automatically open extra panel when a new component has been created'
       type: 'boolean'
       default: false
-    externalTemplateDir:
-      title: 'External templates folder'
-      description: 'The location to store all the external templates'
-      type: 'string'
-      default: path.join atom.getUserInitScriptPath(), '..', path.sep, 'externalTemplates'
 
   @content: (params) ->
     @div class: 'statwolf-new-component-plugin', =>
@@ -141,6 +125,10 @@ class StatwolfNewComponentPluginView extends View
       return
 
     snippets = JSON.parse(fs.readFileSync metaPath).Snippets
+
+    unless snippets
+      return
+
     snippetList = []
     snippets.forEach (snippet) ->
       snippetList.push snippet.body
@@ -152,15 +140,15 @@ class StatwolfNewComponentPluginView extends View
     unless editor = atom.workspace.getActiveTextEditor()
       return
 
-    env = atom.config.get 'statwolf-atom-configuration.env'
+    env = localStorage.getItem 'activeEnvironment'
     env += 'EnvConfig'
     filePath = @snippetFilePath.dir
-    swPath = filePath.split((atom.config.get 'statwolf-atom-configuration.rootPath') + path.sep)[1]
+    swPath = filePath.split((localStorage.getItem 'rootPath') + path.sep)[1]
 
     context =
-      hostname: atom.config.get 'statwolf-atom-configuration.' + env + '.host'
-      port: atom.config.get 'statwolf-atom-configuration.' + env + '.port'
-      user: atom.config.get 'statwolf-atom-configuration.' + env + '.userId'
+      hostname: localStorage.getItem 'host'
+      port: localStorage.getItem 'port'
+      user: localStorage.getItem 'userId'
       componentName: @snippetFilePath.name
       internalPath: swPath.split(path.sep).join('.')
 
@@ -288,7 +276,7 @@ class StatwolfNewComponentPluginView extends View
 
     try
       overwrite = @overwriteLabel[0].childNodes[0].checked
-      tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+      tptDir = localStorage.getItem 'externalTemplateDir'
       addedTemplates = components.templateHelper.addTemplateFromList inputPath, overwrite, tptDir
       atom.notifications.addSuccess "#{addedTemplates.length} new templates added."
     catch error
@@ -322,7 +310,7 @@ class StatwolfNewComponentPluginView extends View
         throw new Error 'Invalid path specified.'
 
       componentFullName = inputPath + path.sep + last
-      rPath = atom.config.get 'statwolf-atom-configuration.rootPath'
+      rPath = localStorage.getItem 'rootPath'
       basePath = componentFullName.split(rPath)[1].slice 1
 
       context =
@@ -331,7 +319,7 @@ class StatwolfNewComponentPluginView extends View
         basePath: path.dirname basePath
 
       filesToCreate = allowUnsafeEval => allowUnsafeNewFunction =>
-        tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+        tptDir = localStorage.getItem 'externalTemplateDir'
         components.templateHelper.getFileListForType @componentType, context, tptDir
 
       for file in filesToCreate
@@ -426,7 +414,7 @@ class StatwolfNewComponentPluginView extends View
     @suggestedPathFromSelection = suggested
     componentTypeView = new ComponentTypeView
 
-    tptDir = atom.config.get 'statwolf-new-component-plugin.externalTemplateDir'
+    tptDir = localStorage.getItem 'externalTemplateDir'
     typeList = components.templateHelper.getTemplateList tptDir
     componentTypeView.toggle @, typeList
 
@@ -460,24 +448,17 @@ class StatwolfNewComponentPluginView extends View
     @getFileList (files) -> @renderAutocompleteList files
 
   suggestPath: (suggested) ->
-    suggestedPath = ''
-    switch atom.config.get 'statwolf-new-component-plugin.defaultInputValue'
-      when DEFAULT_SELECTED_DIR
-        suggestedPath = suggested
-        if fs.isFileSync suggestedPath
-          suggestedPath = path.dirname suggestedPath
-        suggestedPath += path.sep
-      when DEFAULT_PROJECT_ROOT
-        projectPaths = atom.project.getPaths()
-        if projectPaths.length > 0
-          suggestedPath = projectPaths[0] + path.sep
+    suggestedPath = suggested
+    if fs.isFileSync suggestedPath
+      suggestedPath = path.dirname suggestedPath
+    suggestedPath += path.sep
 
     @miniEditor.setText suggestedPath
 
   copyStatwolfPath: (event) ->
     launchPath = @getSelectedComponentFromEvent event
     projectName = 'Statwolf'
-    projectPath = atom.config.get 'statwolf-atom-configuration.rootPath'
+    projectPath = localStorage.get 'rootPath'
 
     unless launchPath.split(projectPath)[1]
       atom.notifications.addWarning 'Component path not copied', {detail: 'You selected an invalid Statwolf component.'}
