@@ -458,7 +458,7 @@ class StatwolfNewComponentPluginView extends View
   copyStatwolfPath: (event) ->
     launchPath = @getSelectedComponentFromEvent event
     projectName = 'Statwolf'
-    projectPath = localStorage.get 'rootPath'
+    projectPath = localStorage.getItem 'rootPath'
 
     unless launchPath.split(projectPath)[1]
       atom.notifications.addWarning 'Component path not copied', {detail: 'You selected an invalid Statwolf component.'}
