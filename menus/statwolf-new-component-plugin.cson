@@ -1,4 +1,10 @@
 'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Navigate to file'
+      'command': 'statwolf-navigator:navigate'
+    }
+  ]
   '.tree-view.full-menu': [
     { 'label': 'Explode component view', 'command': 'statwolf-new-component-plugin:expandComponent'}
     { 'type' : 'separator' }

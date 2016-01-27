@@ -147,3 +147,24 @@ When parsing a snippet, some information is passed to it. That is:
 - `userId`: the user currently active
 - `componentName`: the name of the component that triggered the snippet
 - `internalPath`: the Statwolf representation of the component path
+
+### Navigation
+When working with code, it is possible to automatically open a component if its
+Statwolf path is written in a quoted text, both with:
+
+- the default keybinding `ctrl-alt-n`
+- double clicking on the quoted text itself
+
+A string that can trigger the navigation can be in the forms:
+
+```
+'Statwolf.Component.Internal.Path'
+"Statwolf.Another.Great.Path"
+```
+
+Please consider that the navigation feature **requires the cursor to be placed
+in the string to jump into**.
+
+If the component does not exist, Atom will notify the user with a warning popup.
+
+![Warning](https://raw.githubusercontent.com/Statwolf/statwolf-new-component-plugin/type-selection/images/navigateWarning.png)

@@ -1,3 +1,6 @@
+## 0.1.12
+* New navigation feature added
+
 ## 0.1.16
 * Copy Statwolf path major bug fix
 

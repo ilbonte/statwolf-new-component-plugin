@@ -9,6 +9,7 @@ Handlebars = require 'handlebars'
 DirectoryListView = require './directory-list-view'
 ComponentTypeView = require './component-type-view'
 SnippetListView   = require './snippet-list-view'
+StatwolfNavigator = require './navigator'
 
 module.exports =
 class StatwolfNewComponentPluginView extends View
@@ -36,6 +37,11 @@ class StatwolfNewComponentPluginView extends View
       description: 'Automatically open extra panel when a new component has been created'
       type: 'boolean'
       default: false
+    doubleClickNavigation:
+      title: 'Double click to navigate'
+      description: 'When double clicking to a component string, automatically open that component main file'
+      type: 'boolean'
+      default: true
 
   @content: (params) ->
     @div class: 'statwolf-new-component-plugin', =>
@@ -52,6 +58,12 @@ class StatwolfNewComponentPluginView extends View
   @activate: (state) ->
     @statwolfNewComponentPluginView = new StatwolfNewComponentPluginView state.statwolfNewComponentPluginViewState
 
+    atom.workspace.observeTextEditors (editor) =>
+      view = atom.views.getView editor
+      view.ondblclick = =>
+        if atom.config.get 'statwolf-new-component-plugin.doubleClickNavigation'
+          StatwolfNavigator.navigate()
+
   @deactivate: ->
     @componentType = null
     @statwolfNewComponentPluginView?.detach()
@@ -65,6 +77,7 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:addNewTemplate': (event) => @addNewTemplate event
       'statwolf-new-component-plugin:pasteComponentSnippet': (event) => @getSnippetsForCurrentComponent event
       'statwolf-new-component-plugin:getComponentSnippets': (event) => @getSnippetsForSelectedComponent event
+      'statwolf-new-component-plugin:navigate': (event) => StatwolfNavigator.navigate()
     })
 
     atom.commands.add @element,
