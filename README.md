@@ -167,4 +167,4 @@ in the string to jump into**.
 
 If the component does not exist, Atom will notify the user with a warning popup.
 
-![Warning](https://raw.githubusercontent.com/Statwolf/statwolf-new-component-plugin/type-selection/images/navigateWarning.png)
+![Warning](https://raw.githubusercontent.com/Statwolf/statwolf-new-component-plugin/master/images/navigateWarning.png)
