@@ -73,6 +73,7 @@ class StatwolfNewComponentPluginView extends View
       'statwolf-new-component-plugin:toggle': (event) => @toggle event
       'statwolf-new-component-plugin:expandComponent': (event) => @expandComponent event
       'statwolf-new-component-plugin:showComponentExtra': (event) => @showComponentExtra event
+      'statwolf-new-component-plugin:openComponentExtra': (event) => @openComponentExtra event
       'statwolf-new-component-plugin:copyStatwolfPath': (event) => @copyStatwolfPath event
       'statwolf-new-component-plugin:addNewTemplate': (event) => @addNewTemplate event
       'statwolf-new-component-plugin:pasteComponentSnippet': (event) => @getSnippetsForCurrentComponent event
@@ -364,6 +365,17 @@ class StatwolfNewComponentPluginView extends View
       @componentView.close()
     else
       @showComponentPanel path.dirname atom.workspace.getActiveTextEditor().getPath()
+
+  openComponentExtra: (event) ->
+    fullPath = path.dirname atom.workspace.getActiveTextEditor().getPath()
+    fullName = fullPath + path.sep + path.basename fullPath
+    depsPath = fullName + '.deps.json'
+    isDependency = fs.existsSync(depsPath)
+    if isDependency
+      atom.workspace.open depsPath
+    else
+      atom.beep()
+
 
   showComponentPanel: (fullPath) ->
     fullName = fullPath + path.sep + path.basename fullPath

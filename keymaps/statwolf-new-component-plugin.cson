@@ -1,4 +1,5 @@
 'atom-workspace':
   'ctrl-o': 'statwolf-new-component-plugin:showComponentExtra'
+  'ctrl-alt-o': 'statwolf-new-component-plugin:openComponentExtra'
   'ctrl-alt-v': 'statwolf-new-component-plugin:pasteComponentSnippet'
   'ctrl-alt-n': 'statwolf-new-component-plugin:navigate'
