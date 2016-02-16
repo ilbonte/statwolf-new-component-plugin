@@ -18,9 +18,9 @@ class TabbedView extends View
       @span click: 'toggle', class: 'icon icon-x close-icon'
       @h2 outlet: 'componentNameHeader'
 
-      fullName = params.componentPath + path.sep + path.basename params.componentPath
-      isDependency = fs.existsSync(fullName + '.deps.json')
-      isResolver = fs.existsSync(fullName + '.resolver.js')
+      fullName = params.fullName
+      isDependency = params.isDependency
+      isResolver = params.isResolver
 
       if isDependency or isResolver
         label = if isDependency then 'Dependencies' else 'Resolver'
@@ -31,6 +31,8 @@ class TabbedView extends View
             @div class: "btn-group", =>
               @button outlet: 'openButton', click: 'openExtra', class: 'btn btn-sm btn-primary', 'Open in new tab'
               @button outlet: 'saveButton', click: 'saveExtra', class: 'btn btn-sm disabled', 'Save changes'
+      else
+        return
 
   initialize: (serializeState) ->
     if @extraView
@@ -46,7 +48,8 @@ class TabbedView extends View
     for file in files
       continue if file.indexOf('.meta.json') != -1 or
                   file.indexOf('.resolver.js') != -1 or
-                  file.indexOf('.deps.json') != -1
+                  file.indexOf('.deps.json') != -1 or
+                  file.indexOf('.test.js') != -1
       if path.extname(file) is '.js' or path.extname(file) is '.json'
         atom.workspace.open file
         .then (editor) =>
@@ -66,25 +69,29 @@ class TabbedView extends View
     @detach()
     @panel.destroy()
 
-  populateInfo: () ->
+  populateInfo: ->
     @getComponentType()
+
+    unless @componentType
+      return
+
     @componentNameHeader.append @componentName + ' - ' + @componentType
     @setExtraFilePath()
     if @hasDependencies() or @hasResolver()
       @populateExtra()
 
-  openExtra: () ->
+  openExtra: ->
     if @extraFilePath
       atom.workspace.open @extraFilePath
 
-  saveExtra: () ->
+  saveExtra: ->
     if @extraFilePath
       toBeSaved = @extraView.getText()
       @extraFileCtnt = @extraView.getText()
       fs.writeFileSync @extraFilePath, toBeSaved
       @toggleSaveButton false
 
-  setExtraFilePath: () ->
+  setExtraFilePath: ->
     if @hasDependencies()
       @extraFilePath = @componentPath + path.sep + @componentName + '.deps.json'
     else if @hasResolver()
@@ -97,10 +104,12 @@ class TabbedView extends View
     return fs.existsSync @componentPath + path.sep + @componentName + '.resolver.js'
 
   getComponentType: () ->
-    metaFile = fs.readFileSync @componentPath + path.sep + @componentName + '.meta.json'
-    unless metaFile
+    fileName = @componentPath + path.sep + @componentName + '.meta.json'
+
+    unless fs.existsSync fileName
       return
 
+    metaFile = fs.readFileSync fileName
     meta = JSON.parse metaFile
     @componentType = meta.ComponentType
 

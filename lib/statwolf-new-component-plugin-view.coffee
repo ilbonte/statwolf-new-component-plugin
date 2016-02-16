@@ -143,6 +143,7 @@ class StatwolfNewComponentPluginView extends View
       return
 
     snippetList = []
+
     snippets.forEach (snippet) ->
       snippetList.push snippet.body
 
@@ -365,10 +366,23 @@ class StatwolfNewComponentPluginView extends View
       @showComponentPanel path.dirname atom.workspace.getActiveTextEditor().getPath()
 
   showComponentPanel: (fullPath) ->
+    fullName = fullPath + path.sep + path.basename fullPath
+    isDependency = fs.existsSync(fullName + '.deps.json')
+    isResolver = fs.existsSync(fullName + '.resolver.js')
+
+    unless isDependency or isResolver
+      return
+
     TabbedView = require './tabbed-view'
     if @componentView
       @componentView.close()
-    @componentView = new TabbedView(componentPath: fullPath)
+
+    @componentView = new TabbedView(
+      componentPath: fullPath,
+      fullName: fullName,
+      isDependency: isDependency,
+      isResolver: isResolver)
+
     @componentView.componentPath = fullPath
     @componentView.toggle()
 
